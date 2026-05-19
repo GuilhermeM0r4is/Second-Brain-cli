@@ -12,11 +12,11 @@ def load_note_by_id(note_id):
     gets an int but searches for the string '''
 
     # gets the current string ID
-    note_id = f"N{note_id:04d}"
+    note_id = f"N{int(note_id):04d}"
 
     notes = load_notes()
     for note in notes:
         if note["id"] == note_id: return note
 
     # found no note with that specific ID
-    raise ValueError("Note ID not found")
+    return "\033[1;31mload_note_by_id: Note ID not found\033[0m"
