@@ -14,7 +14,7 @@ def generate_note_id(notes):
     # returns the f-string value
     return f"N{value:04d}"
 
-def create_note(note_id, title, content, tags):
+def create_note(note_id, title, content, tags, fvr):
     ''' creates a new note to be later on stored in JSON file '''
 
     return {"id": note_id, 
@@ -23,4 +23,4 @@ def create_note(note_id, title, content, tags):
             "tags": tags, 
             # represents as 2026-05-09T15:30:00
             "created_at": datetime.now().isoformat(),
-            "favorite": False }
+            "favorite": fvr }
