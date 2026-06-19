@@ -15,6 +15,7 @@ def load_notes():
 
         return []
     
+    
 def save_notes(notes):
     ''' takes the notes list and saves it into the json file '''
 

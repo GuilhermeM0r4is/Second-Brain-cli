@@ -8,19 +8,24 @@ def add_note(note):
     save_notes(notes)
 
 
-def load_note_by_id(note_id):
+def find_note(info, notes):
     ''' searches for a note in the json file, 
-    gets an int but searches for the string '''
+    gets an ID or title and goes after it '''
 
-    # gets the current string ID
-    note_id = f"N{int(note_id):04d}"
+    if info.isdigit():    # if we're looking for an ID
 
-    notes = load_notes()
-    for note in notes:
-        if note["id"] == note_id: return note
+        # gets the current string ID
+        note_id = f"N{int(info):04d}"
+
+        for note in notes:
+            if note["id"] == note_id: return print(f"\033[1;32m{note}\033[0m")
+
+    else:   # we are instead looking for a title
+        for note in notes: 
+            if note["title"] == info: return print(f"\033[1;32m{note}\033[0m")
 
     # found no note with that specific ID
-    return "\033[1;31mload_note_by_id: Note ID not found\033[0m"
+    print("\033[1;31mload_note_by_id: Note ID not found\033[0m")
 
 
 def update_note(note_updated, notes):
@@ -36,23 +41,30 @@ def update_note(note_updated, notes):
             notes[int(id) - 1] = note_updated
 
             save_notes(notes)
-            return "\033[1;32mupdate_note: Note Updated\033[0m"
+            return print("\033[1;32mupdate_note: Note Updated\033[0m")
         
-    return "\033[1;31mdelete_note_id: Note ID not found\033[0m"
+    print("\033[1;31mdelete_note_id: Note ID not found\033[0m")
 
 
-def delete_note_by_id(note_id):
+def delete_note(info, notes):
     ''' deletes a note in the json file by its id value '''
 
-    # gets the current string ID
-    note_id = f"N{int(note_id):04d}"
+    if info.isdigit():    # if we're looking for an ID
 
-    notes = load_notes()
+        # gets the current string ID
+        note_id = f"N{int(info):04d}"
 
-    for note in notes:
-        if note["id"] == note_id:
-            notes.remove(note)
-            save_notes(notes)
-            return "\033[1;32mdelete_note_id: Note Deleted\033[0m"
-    
-    return "\033[1;31mdelete_note_id: Note ID not found\033[0m"
+        for note in notes:
+            if note["id"] == note_id:
+                notes.remove(note)
+                save_notes(notes)
+                return print("\033[1;32mdelete_note_id: Note Deleted\033[0m")
+
+    else:   # we are instead looking for a title
+        for note in notes:
+            if note["title"] == info: 
+                notes.remove(note)
+                save_notes(notes)
+                return print("\033[1;32mdelete_note_id: Note Deleted\033[0m")
+                
+    print("\033[1;31mdelete_note_id: Note ID not found\033[0m")

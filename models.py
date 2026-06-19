@@ -14,6 +14,7 @@ def generate_note_id(notes):
     # returns the f-string value
     return f"N{value:04d}"
 
+
 def create_note(note_id, title, content, tags, fvr):
     ''' creates a new note to be later on stored in JSON file '''
 
@@ -24,3 +25,32 @@ def create_note(note_id, title, content, tags, fvr):
             # represents as 2026-05-09T15:30:00
             "created_at": datetime.now().isoformat(),
             "favorite": fvr }
+
+
+def txt_to_note(txt):
+    ''' creates a new note from a .txt file given '''
+
+    # opens the file and uses it to get the components to create the note
+    with open(txt, "r", encoding='utf-8', errors='replace') as file:
+
+        title = file.readline().strip()
+
+        # the content comes as a whole string all together
+        content = ''.join(file.readlines()).strip()
+
+    return title, content
+
+
+def note_info(action, siz_action):
+    ''' takes the action and turns it into the tags and fvr info '''
+
+    tags = ""; fvr = ""
+
+    # checks the len of action to see if we have tags and fvr set up
+    if siz_action >= 3: 
+        tags = action[2]
+    
+    if siz_action == 4: 
+        fvr = action[3]
+
+    return tags, fvr
