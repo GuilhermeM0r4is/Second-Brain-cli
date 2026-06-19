@@ -10,12 +10,10 @@ venv/
 # Data file (local database)
 data.json
 
-# Project MD
-PROJECT.md
-
 # IDE files
 .vscode/
 .idea/
+*.txt
 
 # OS files
 .DS_Store
