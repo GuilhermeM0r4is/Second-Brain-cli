@@ -1,6 +1,7 @@
 import json
+from ui import console
 
-def load_notes():
+def load_notes() -> list:
     ''' loads a JSON file and its content, if not found, creates one '''
 
     # it will try to open the file and load its content
@@ -12,11 +13,15 @@ def load_notes():
     except FileNotFoundError:
         with open("data.json", "w") as file:
             json.dump([], file)
-
+        return []
+    
+    # if there's corrupted data in the .json file
+    except json.JSONDecodeError:
+        console.print("[red]JSON Error: Corrupted data.json file[/red]")
         return []
     
     
-def save_notes(notes):
+def save_notes(notes: list) -> None:
     ''' takes the notes list and saves it into the json file '''
 
     # using the write function will guarantee the existance of the file

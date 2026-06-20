@@ -10,8 +10,8 @@ venv/
 # Data file (local database)
 data.json
 
-# Project MD
-PROJECT.md
+# Project test files
+*.txt
 
 # IDE files
 .vscode/
