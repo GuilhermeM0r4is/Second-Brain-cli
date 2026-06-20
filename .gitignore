@@ -10,12 +10,16 @@ venv/
 # Data file (local database)
 data.json
 
+<<<<<<< HEAD
 # Project test files
 *.txt
 
+=======
+>>>>>>> efd8603fcbc147efd24631ab5fbae813c0d9ca7c
 # IDE files
 .vscode/
 .idea/
+*.txt
 
 # OS files
 .DS_Store
