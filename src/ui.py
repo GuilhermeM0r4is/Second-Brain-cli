@@ -21,9 +21,10 @@ header = """[blue]
 [use '|' as a separator for topics][/blue]
 [green]> [/green]Create note: [blue]c title content [tags] [fvr][/blue]
 [green]> [/green]List notes: [blue]l[/blue]
-[green]> [/green]Find note: [blue]f note_id/title[/blue]
+[green]> [/green]Find note: [blue]f note_id | title | -tag[/blue]
 [green]> [/green]Update note: [blue]u title content [tags] [fvr][/blue]
-[green]> [/green]Delete note: [blue]d note_id/title[/blue]
+[green]> [/green]Delete note: [blue]d note_id | title[/blue]
+[green]> [/green]Stats: [blue]s[/blue]
 [green]> [/green]Help: [blue]h [-@][/blue]
 [red]0. [/red]Exit
 """

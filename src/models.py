@@ -1,31 +1,34 @@
 from datetime import datetime   # imports the datetime module to work with date and time
 from ui import console, Panel
+from dataclasses import dataclass
+from config import NOTE_ID_PREFIX, FAVORITE_FALSE, FAVORITE_TRUE
 
-def generate_note_id(notes: list) -> str:
+@dataclass      # Uses the note dataclass to
+class Note:     # make it more readable
+    id: str
+    title: str
+    content: str
+    tags: str
+    favorite: str
+    created_at: str | None = None  # represents as 2026-05-09T15:30:00
+    
+    def __post_init__(self):
+        if self.created_at is None:
+            self.created_at = datetime.now().isoformat()    
+
+def generate_note_id(notes: list[Note]) -> str:
     ''' generates a new note_id from the notes array '''
 
-    if len(notes) == 0: return "N0001"
+    if len(notes) == 0: return NOTE_ID_PREFIX + "0001"
 
     # gets the last note from the array -> and its number ID "N0001"
-    last_id = notes[-1]["id"]
+    last_id = notes[-1].id
 
     # gets the int value from the string and sums + 1 
     value = int(last_id[1:]) + 1 
 
     # returns the f-string value
-    return f"N{value:04d}"
-
-
-def create_note(note_id: str, title: str, content: str, tags: str, fvr: str) -> dict:
-    ''' creates a new note to be later on stored in JSON file '''
-
-    return {"id": note_id, 
-            "title": title, 
-            "content": content, 
-            "tags": tags, 
-            # represents as 2026-05-09T15:30:00
-            "created_at": datetime.now().isoformat(),
-            "favorite": fvr }
+    return f"{NOTE_ID_PREFIX}{value:04d}"
 
 
 def txt_to_note(txt: str) -> tuple[str, str] | None:
@@ -44,28 +47,31 @@ def txt_to_note(txt: str) -> tuple[str, str] | None:
     except Exception as e: console.print(f"[red]File Error: Failed reading file[/red]")
 
 
-def note_info(action: list, siz_action: int) -> tuple[str, str]:
+def note_info(action: list, siz_action: int) -> tuple[str, str] | None:
     ''' takes the action and turns it into the tags and fvr info '''
 
-    tags = ""; fvr = ""
+    tags = ""; fvr = FAVORITE_FALSE
 
     # checks the len of action to see if we have tags and fvr set up
     if siz_action >= 3: 
         tags = action[2]
     
-    if siz_action == 4: 
-        fvr = action[3]
+    if siz_action == 4:
+        if action[3] in (FAVORITE_FALSE, FAVORITE_TRUE):
+            fvr = action[3]
+
+        else: return None   # makes it so only 0 or 1 can be used to favorite
 
     return tags, fvr
 
 
-def note_format_print(note: dict) -> None:
+def note_format_print(note: Note) -> None:
     ''' prints the note in the determined format '''
 
     console.print(Panel(
-        f"[cyan]Title:[/cyan] {note['title']}\n"
-        f"[cyan]Content:[/cyan] {note['content']}\n"
-        f"[cyan]Tags:[/cyan] {note['tags']}\n"
-        f"[cyan]Created At:[/cyan] {note['created_at']}\n"
-        f"[cyan]Favorite:[/cyan] {note['favorite']}", 
-        border_style="cyan", title=note["id"]))
+        f"[cyan]Title:[/cyan] {note.title}\n"
+        f"[cyan]Content:[/cyan] {note.content}\n"
+        f"[cyan]Tags:[/cyan] {note.tags}\n"
+        f"[cyan]Created At:[/cyan] {note.created_at}\n"
+        f"[cyan]Favorite:[/cyan] {note.favorite}", 
+        border_style="cyan", title=note.id))
