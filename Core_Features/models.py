@@ -1,7 +1,8 @@
 from datetime import datetime   # imports the datetime module to work with date and time
-from ui import console, Panel
+from Core_Features.config import CONSOLE
+from Core_Features.config import NOTE_ID_PREFIX, FAVORITE_FALSE, FAVORITE_TRUE
 from dataclasses import dataclass
-from config import NOTE_ID_PREFIX, FAVORITE_FALSE, FAVORITE_TRUE
+from rich.panel import Panel
 
 @dataclass      # Uses the note dataclass to
 class Note:     # make it more readable
@@ -43,8 +44,8 @@ def txt_to_note(txt: str) -> tuple[str, str] | None:
 
         return title, content
     
-    except FileNotFoundError: console.print(f"[red]File Error: Not found[/red]")
-    except Exception as e: console.print(f"[red]File Error: Failed reading file[/red]")
+    except FileNotFoundError: CONSOLE.print(f"[red]File Error: Not found[/red]")
+    except Exception as e: CONSOLE.print(f"[red]File Error: Failed reading file[/red]")
 
 
 def note_info(action: list, siz_action: int) -> tuple[str, str] | None:
@@ -68,7 +69,7 @@ def note_info(action: list, siz_action: int) -> tuple[str, str] | None:
 def note_format_print(note: Note) -> None:
     ''' prints the note in the determined format '''
 
-    console.print(Panel(
+    CONSOLE.print(Panel(
         f"[cyan]Title:[/cyan] {note.title}\n"
         f"[cyan]Content:[/cyan] {note.content}\n"
         f"[cyan]Tags:[/cyan] {note.tags}\n"

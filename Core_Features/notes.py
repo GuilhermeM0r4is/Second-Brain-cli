@@ -1,7 +1,7 @@
-from models import Note, generate_note_id, note_info, txt_to_note, note_format_print
-from storage import save_notes, load_notes
-from ui import print_header, console
-from config import NOTE_ID_PREFIX, HELP_COMMAND, FAVORITE_TRUE
+from Core_Features.config import NOTE_ID_PREFIX, HELP_COMMAND, FAVORITE_TRUE
+from Core_Features.models import (Note, generate_note_id, note_info, txt_to_note, note_format_print)
+from Core_Features.storage import save_notes, load_notes
+from Core_Features.ui import print_header, CONSOLE
 from collections import Counter
 
 def add_note(note: Note) -> None:
@@ -41,9 +41,9 @@ def update_note(note_updated: Note, notes: list[Note]) -> None:
         notes[int(id) - 1] = note_updated
 
         save_notes(notes)
-        return console.print("[green]update_note: Note updated[/green]")
+        return CONSOLE.print("[green]update_note: Note updated[/green]")
         
-    console.print("[red]delete_note: Note ID not found[/red]")
+    CONSOLE.print("[red]delete_note: Note ID not found[/red]")
     
 
 #################################### MAIN FUNCTIONS FOR COMMANDS ####################################
@@ -51,7 +51,7 @@ def update_note(note_updated: Note, notes: list[Note]) -> None:
 def create_note(actn: list, siz_action: int, notes: list[Note]) -> None:
     ''' create a note command to add notes to JSON file '''
 
-    if siz_action < 2: return console.print("[red]create_note: Missing required arguments[/red]")
+    if siz_action < 2: return CONSOLE.print("[red]create_note: Missing required arguments[/red]")
 
     # gets the id from the generated notes and creates a new note
     id = generate_note_id(notes)
@@ -73,7 +73,7 @@ def create_note(actn: list, siz_action: int, notes: list[Note]) -> None:
     note_information = note_info(actn, siz_action)
         
     # assures the information was not a failed error
-    if note_information is None: console.print("[red]create_note: Use 0 or 1 for favorite option[/red]"); return
+    if note_information is None: CONSOLE.print("[red]create_note: Use 0 or 1 for favorite option[/red]"); return
     tags, fvr = note_information
     
     note = Note(id = id, title = title, content = content,
@@ -94,7 +94,7 @@ def note_update(actn: list, siz_action: int, notes: list[Note]) -> None:
         if isinstance(note, Note): note.title = actn[1][1:]
                         
         save_notes(notes)
-        console.print("[green]update_note: Title updated [/green]", actn[0])
+        CONSOLE.print("[green]update_note: Title updated [/green]", actn[0])
 
     else:
         # using a .txt file as note creation
@@ -112,7 +112,7 @@ def note_update(actn: list, siz_action: int, notes: list[Note]) -> None:
         note_information = note_info(actn, siz_action)
         
         # assures the information was not a failed error
-        if note_information is None: console.print("[red]note_update: Use 0 or 1 for favorite option[/red]"); return
+        if note_information is None: CONSOLE.print("[red]note_update: Use 0 or 1 for favorite option[/red]"); return
         tags, fvr = note_information
 
         # gets the id from the generated notes and creates a new note
@@ -130,7 +130,7 @@ def list_notes(notes: list[Note]) -> None:
     if len(notes) != 0: 
         for note in notes: note_format_print(note)
 
-    else: console.print("[red]list_notes: No notes[/red]")
+    else: CONSOLE.print("[red]list_notes: No notes[/red]")
 
 
 def find_note(info: str, notes: list[Note]) -> None:
@@ -148,9 +148,9 @@ def find_note(info: str, notes: list[Note]) -> None:
         elif result is not None: return note_format_print(result)
 
         # found no note with that specific ID
-        console.print("[red]find_note: Note ID not found[/red]")
+        CONSOLE.print("[red]find_note: Note ID not found[/red]")
     
-    except ValueError: console.print("[red]find_note: Invalid note ID[/red]")
+    except ValueError: CONSOLE.print("[red]find_note: Invalid note ID[/red]")
 
 
 def delete_note(info: str, notes: list[Note]) -> None:
@@ -161,19 +161,19 @@ def delete_note(info: str, notes: list[Note]) -> None:
     if isinstance(note, Note):
         notes.remove(note)
         save_notes(notes)
-        return console.print("[green]delete_note: Note deleted[/green]")
+        return CONSOLE.print("[green]delete_note: Note deleted[/green]")
                 
-    console.print("[red]delete_note: Note ID not found[/red]")
+    CONSOLE.print("[red]delete_note: Note ID not found[/red]")
 
 
 def notes_stats(notes: list[Note]) -> None:
     ''' prints all funny and different stats from notes '''
 
-    console.print(f"[green]> Total Notes: {len(notes)}[/green]")
+    CONSOLE.print(f"[green]> Total Notes: {len(notes)}[/green]")
 
     # gets the amount of favorite notes user has in total
     fav_amount = sum(1 for note in notes if note.favorite == FAVORITE_TRUE)
-    console.print(f"[green]> Total Favorites: {fav_amount}[/green]")
+    CONSOLE.print(f"[green]> Total Favorites: {fav_amount}[/green]")
 
     # shows the most used tag
     all_tags = []
@@ -183,12 +183,12 @@ def notes_stats(notes: list[Note]) -> None:
             all_tags.extend(tags)   # extends the list with another list
 
     if len(all_tags) == 0:
-        console.print(f"[green]> Most Used Tag: None[/green]")
+        CONSOLE.print(f"[green]> Most Used Tag: None[/green]")
 
     else:
         tag_counts = Counter(all_tags)
         fav_tag = tag_counts.most_common(1)[0][0]
-        console.print(f"[green]> Favorite Tag: {fav_tag}[/green]")
+        CONSOLE.print(f"[green]> Favorite Tag: {fav_tag}[/green]")
 
 
 def help(actn: list) -> None:
@@ -197,5 +197,5 @@ def help(actn: list) -> None:
     if actn[0] == "": print_header(); return
 
     # create a dictionary with all the outcomes to just look through afterwards    
-    if actn[0] in HELP_COMMAND: console.print(HELP_COMMAND[actn[0]])
-    else: console.print("[red]help: Invalid choice[/red]")
+    if actn[0] in HELP_COMMAND: CONSOLE.print(HELP_COMMAND[actn[0]])
+    else: CONSOLE.print("[red]help: Invalid choice[/red]")

@@ -2,7 +2,7 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.align import Align
 
-console = Console()
+CONSOLE = Console()
 
 banner = """[bold cyan]
 
@@ -13,7 +13,7 @@ banner = """[bold cyan]
  ███████║██████╔╝██║  ██║██║  ██║██║██║ ╚████║
  ╚══════╝╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝
 [/bold cyan]
-                SBRAIN • B1.4
+                SBRAIN • B1.5
 """
 
 # set up the header for later usage
@@ -34,13 +34,13 @@ def print_header() -> None:
 
     print()
     # prints the header information as intended
-    console.print(Panel(header, border_style="cyan", title="COMMANDS"))
+    CONSOLE.print(Panel(header, border_style="cyan", title="COMMANDS"))
 
 
 def print_info() -> None:
     ''' print fucntion for the intro messages '''
 
     # prints the banner in center
-    console.print(Align.center(banner))
+    CONSOLE.print(Align.center(banner))
     print_header()
     

@@ -17,7 +17,10 @@ A modular terminal-based personal knowledge system built with Python.
 - SQLite
 - Git
 - Project Structure:
-src/ main.py models.py storage.py notes.py ui.py config.py
+run.py
+AI_Layer/ ai_config.py ai.py
+Core_Features/ main.py models.py storage.py notes.py ui.py config.py
+Storage/ data.json
 
 # Goals
 This project exists to:

@@ -1,7 +1,9 @@
-from storage import load_notes
-from notes import create_note, note_update, list_notes, find_note, delete_note, notes_stats, help
-from ui import print_info, console
-from config import SEPARATOR
+from Core_Features.config import SEPARATOR
+from Core_Features.ui import CONSOLE
+from Core_Features.notes import (create_note, note_update, list_notes, find_note, 
+                   delete_note, notes_stats, help)
+from Core_Features.storage import load_notes
+from AI_Layer import ai_tools
 
 def main():
     ''' main function that keeps the program running all the time '''
@@ -13,7 +15,7 @@ def main():
         notes = load_notes()      # loads all the notes
 
         # formats the choice input for the user to use it
-        inpt = console.input("[blue]SB > [/blue]")
+        inpt = CONSOLE.input("[blue]SB > [/blue]")
         if len(inpt) == 0: continue
       
         # gets the cmd option and the action itself to work with
@@ -27,13 +29,11 @@ def main():
                 "f": lambda: find_note(actn[0], notes),
                 "d": lambda: delete_note(actn[0], notes),
                 "s": lambda: notes_stats(notes),
+                "ai": lambda: ai_tools(actn, siz_action, notes),
                 "h": lambda: help(actn)
                   }
 
         if cmd in d_optn: d_optn[cmd]()     # chooses the option from the dict
       
         elif cmd == "0": break
-        else: console.print("[blue]SB: [red]Invalid choice, use 'h' for help[/red]")
-
-print_info()  # prints the information in the beginning
-main()		  # runs the program itself
+        else: CONSOLE.print("[blue]SB: [red]Invalid choice, use 'h' for help[/red]")

@@ -1,7 +1,10 @@
+from rich.console import Console
+
 NOTE_ID_PREFIX = "N"
 SEPARATOR = " | "
 FAVORITE_TRUE = "1"
 FAVORITE_FALSE = "0"
+CONSOLE = Console()
 
 HELP_COMMAND = {"-c": ("\n[green]create_note: creates a new note to be later on stored in JSON file using the given info[/green]\n"
                         "[cyan]title: [/cyan]title of the note to create refering to its content;\n"
