@@ -1,0 +1,5 @@
+rich
+openai
+anthropic
+google-genai
+ollama

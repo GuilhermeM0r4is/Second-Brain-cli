@@ -1,0 +1,95 @@
+from AI_Layer.model import Model
+from Core_Features.config import CONSOLE
+
+# all the AI providers and their respective functions are imported here
+import ollama
+from openai import OpenAI
+from anthropic import Anthropic
+from google import genai
+
+
+def ask_ollama(prompt: str, model: Model) -> str | None:
+    ''' function that sends a prompt to the Ollama model and returns the response '''
+
+    message = [{"role": "user", "content": prompt}]
+
+    if model.data_sharing == "LOCAL":   # uses local ollama to try to resume the note
+        response = ollama.chat(
+            model = model.model,
+            messages = message
+        )
+    elif model.data_sharing == "CLOUD":     # uses api_key ollama to try to resume the note
+        client = ollama.Client(
+            host = "https://ollama.com",
+            headers = {"Authorization": f"Bearer {model.api_key}"})
+        
+        response = client.chat(
+            model=model.model,
+            messages = message
+        )
+
+    else: return CONSOLE.print(f"[red]ai_tools: Invalid data sharing option: {model.data_sharing}[/red]")
+    return response.message.content
+
+
+def ask_openai(prompt: str, model: Model) -> str:
+    ''' function that sends a prompt to the OpenAI model and returns the response '''
+
+    client = OpenAI(api_key = model.api_key)
+
+    response = client.responses.create(
+        model = model.model,
+        input = prompt
+    )
+    return response.output_text
+
+
+def ask_anthropic(prompt: str, model: Model) -> str:
+    ''' function that sends a prompt to the Anthropic model and returns the response '''
+
+    client = Anthropic(api_key = model.api_key)
+    response = client.messages.create(
+        model = model.model,
+        max_tokens = 4096,
+        messages = [
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ]
+    )
+    return response.content[0].text
+
+
+def ask_gemini(prompt: str, model: Model) -> str:
+    ''' function that sends a prompt to the Gemini model and returns the response '''
+
+    client = genai.Client(api_key = model.api_key)
+    response = client.models.generate_content(
+        model = model.model,
+        contents = prompt
+    )
+    return response.text
+
+
+def ask_ai(prompt: str, model: Model) -> str | None:
+    ''' function that sends a prompt to the AI model and returns the response '''
+
+    if model is None: return CONSOLE.print("[red]Model config is missing[/red]")
+
+    if model.provider == "ollama":      # gotta have both LOCAL and CLOUD options
+        return ask_ollama(prompt, model)
+
+    elif model.provider == "openai":
+        if not model.api_key or model.api_key == "NONE": return CONSOLE.print("[red]OpenAI API key is missing[/red]")
+        return ask_openai(prompt, model)
+    
+    elif model.provider == "anthropic":
+        if not model.api_key or model.api_key == "NONE": return CONSOLE.print("[red]Anthropic API key is missing[/red]")
+        return ask_anthropic(prompt, model)
+
+    elif model.provider == "gemini":
+        if not model.api_key or model.api_key == "NONE": return CONSOLE.print("[red]Gemini API key is missing[/red]")
+        return ask_gemini(prompt, model)
+
+    return CONSOLE.print(f"[red]ai_tools: Invalid provider: {model.provider}[/red]")

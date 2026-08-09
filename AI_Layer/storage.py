@@ -13,20 +13,19 @@ def load_config() -> Model | None:
     try:
         with open(CONFIG_FILE, 'r') as file:
             data = json.load(file)  # Load as dicts
-            return Model(**data)
+            return Model(**data)  # Convert dicts to Model instance
 
     # if there's no file, we'll need to create it -> returns empty        
     except FileNotFoundError:
         with open(CONFIG_FILE, "w") as file:
-            json.dump({}, file)
+            json.dump({"provider": "ollama", "model": "NONE", "api_key": "NONE", "data_sharing": "LOCAL"}, file)
         return None
     
     # if there's corrupted data in the .json file
     except json.JSONDecodeError:
-        CONSOLE.print("[red]JSON Error: Corrupted ai_config.json file[/red]")
-        return None
-    
-    
+        return CONSOLE.print("[red]JSON Error: Corrupted ai_config.json file[/red]")
+
+
 def save_config(config: Model) -> None:
     ''' takes the config dict and saves it into the json file '''
 

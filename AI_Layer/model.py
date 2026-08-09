@@ -5,6 +5,7 @@ CONSOLE = Console()
 
 @dataclass
 class Model:
-    provider: str
-    model: str | None
-    api_key: str | None
+    provider: str | None = "ollama"
+    model: str | None = "NONE"
+    api_key: str | None = "NONE"
+    data_sharing: str | None = "LOCAL"  # default value for data sharing

@@ -7,11 +7,12 @@ __pycache__/
 venv/
 .env/
 
-# Data file (local database)
-data.json
+# Data files
+Storage/data.json
+Storage/ai_config.json
 
-# Project test files
-*.txt
+# Project documentation
+PROJECT.md
 
 # IDE files
 .vscode/

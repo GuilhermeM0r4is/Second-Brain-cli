@@ -69,8 +69,7 @@ def create_note(actn: list, siz_action: int, notes: list[Note]) -> None:
 
     else: title = actn[0]; content = actn[1]     # it's a direct input in cmd
     
-    # uses the note_info to get the list of values
-    note_information = note_info(actn, siz_action)
+    note_information = note_info(actn, siz_action)      # uses the note_info to get the list of values
         
     # assures the information was not a failed error
     if note_information is None: CONSOLE.print("[red]create_note: Use 0 or 1 for favorite option[/red]"); return
@@ -86,6 +85,8 @@ def create_note(actn: list, siz_action: int, notes: list[Note]) -> None:
 
 def note_update(actn: list, siz_action: int, notes: list[Note]) -> None:
     ''' updates an already existing note '''
+
+    if siz_action < 2: return CONSOLE.print("[red]update_note: Missing required arguments[/red]")
 
     # updates the title of the note only
     if siz_action == 2 and "-" in actn[1]:
@@ -134,7 +135,7 @@ def list_notes(notes: list[Note]) -> None:
 
 
 def find_note(info: str, notes: list[Note]) -> None:
-    ''' searches for a note, gets an ID or title and goes after it '''
+    ''' searches for a note, gets an ID or title or tag and goes after it '''
 
     try:
         # searches for a note that matches the requirements
@@ -150,7 +151,7 @@ def find_note(info: str, notes: list[Note]) -> None:
         # found no note with that specific ID
         CONSOLE.print("[red]find_note: Note ID not found[/red]")
     
-    except ValueError: CONSOLE.print("[red]find_note: Invalid note ID[/red]")
+    except ValueError: CONSOLE.print("[red]find_note: Invalid note information[/red]")
 
 
 def delete_note(info: str, notes: list[Note]) -> None:

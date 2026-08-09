@@ -1,16 +1,23 @@
 from Core_Features.models import Note
-from AI_Layer.ai_config import load_config, save_config
+from AI_Layer.storage import load_config
+from AI_Layer.config import change_config, reset_config, sum_note
 from AI_Layer.model import Model, CONSOLE
 
-def ai_tools(actn: list, siz_action: int, notes: list[Note]) -> None:
+
+def ai_tools(actn: list, siz_action: int, notes: list[Note]) -> str | Model:
     ''' function that uses and executes all ai related commands '''
 
     model = load_config()
+    
+    # shows the current model working / config
+    if siz_action == 1 and isinstance(model, Model) and actn[0] == "-c":
+        return CONSOLE.print(f"[green]ai_tools: provider: {model.provider} | model: {model.model} | " 
+                             f"api_key: {model.api_key} | data_sharing: {model.data_sharing}[/green]")
 
-    # change the configuration
-    if actn[0] == "config":
+    # available options for the ai_tools command
+    ai_options = {"-c": lambda: change_config(siz_action, model, actn),
+                 "-r": lambda: reset_config(), 
+                 "sum": lambda: sum_note(actn, notes, model)} 
 
-        # shows the current model working / config
-        if siz_action == 1 and model is Model:
-            # makes sure it prints either the model or the api_key after the provider
-            CONSOLE.print(f"[green]ai_tools: {model.provider} : {model.model}{model.api_key}[/green]")
+    if actn[0] in ai_options: return ai_options[actn[0]]()     # chooses the option from the dict
+    return CONSOLE.print(f"[red]ai_tools: wrong command usage[/red]")

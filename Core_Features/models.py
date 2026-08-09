@@ -17,6 +17,7 @@ class Note:     # make it more readable
         if self.created_at is None:
             self.created_at = datetime.now().isoformat()    
 
+
 def generate_note_id(notes: list[Note]) -> str:
     ''' generates a new note_id from the notes array '''
 

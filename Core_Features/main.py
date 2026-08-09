@@ -15,12 +15,12 @@ def main():
         notes = load_notes()      # loads all the notes
 
         # formats the choice input for the user to use it
-        inpt = CONSOLE.input("[blue]SB > [/blue]")
+        inpt = CONSOLE.input("[blue]SBRAIN > [/blue]")
         if len(inpt) == 0: continue
       
         # gets the cmd option and the action itself to work with
         cmd = inpt[0]
-        actn = inpt[2:].split(SEPARATOR)
+        actn = [part.strip() for part in inpt[2:].split(SEPARATOR)]
         siz_action = len(actn)
 
         d_optn = {"c": lambda: create_note(actn, siz_action, notes),
@@ -29,11 +29,13 @@ def main():
                 "f": lambda: find_note(actn[0], notes),
                 "d": lambda: delete_note(actn[0], notes),
                 "s": lambda: notes_stats(notes),
-                "ai": lambda: ai_tools(actn, siz_action, notes),
+                "a": lambda: ai_tools(actn, siz_action, notes),
                 "h": lambda: help(actn)
                   }
 
-        if cmd in d_optn: d_optn[cmd]()     # chooses the option from the dict
+        if cmd in d_optn: 
+            try: d_optn[cmd]()     # chooses the option from the dict
+            except Exception as e: CONSOLE.print(f"[red]SBRAIN: {e}[/red]")
       
         elif cmd == "0": break
-        else: CONSOLE.print("[blue]SB: [red]Invalid choice, use 'h' for help[/red]")
+        else: CONSOLE.print("[blue]SBRAIN: [red]Invalid choice, use 'h' for help[/red]")
