@@ -52,7 +52,6 @@ The application is designed to support **local AI processing**, allowing users t
 Python dependencies:
 ```text
 rich
-requests
 openai
 anthropic
 google-genai
