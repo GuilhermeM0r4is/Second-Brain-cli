@@ -1,9 +1,9 @@
 from Core_Features.config import SEPARATOR
 from Core_Features.ui import CONSOLE
-from Core_Features.notes import (create_note, note_update, list_notes, find_note, 
+from Core_Features.notes import (create_note, note_update, list_info, find_note, 
                    delete_note, notes_stats, help)
 from Core_Features.storage import load_notes
-from AI_Layer import ai_tools
+from AI_Layer.ai import ai_tools
 
 def main():
     ''' main function that keeps the program running all the time '''
@@ -25,7 +25,7 @@ def main():
 
         d_optn = {"c": lambda: create_note(actn, siz_action, notes),
                 "u": lambda: note_update(actn, siz_action, notes),
-                "l": lambda: list_notes(notes),
+                "l": lambda: list_info(actn[0], notes),
                 "f": lambda: find_note(actn[0], notes),
                 "d": lambda: delete_note(actn[0], notes),
                 "s": lambda: notes_stats(notes),

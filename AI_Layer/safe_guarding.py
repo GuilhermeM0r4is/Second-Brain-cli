@@ -1,8 +1,23 @@
 import json
 import re
 
-from Core_Features.config import CONSOLE
-from AI_Layer.model import Model
+from AI_Layer.communication import ask_ai
+from AI_Layer.model import Model, CONSOLE
+
+def ask_with_retry(prompt, model, retries=3):
+    """ Sends a prompt to the AI model and retries if it fails."""
+
+    for attempt in range(1, retries + 1):
+        try: 
+            return ask_ai(prompt, model)
+        except Exception as e:
+            if attempt == retries:
+                CONSOLE.print(f"[red]ai_tools: AI request failed after {retries} attempts: {e}[/red]")
+                return None
+
+            CONSOLE.print(f"[yellow]ai_tools: Retry {attempt}/{retries}...[/yellow]")
+
+    return None
 
 def ensure_model(model: Model) -> bool:
     ''' ensures that the model is valid and ready to use '''

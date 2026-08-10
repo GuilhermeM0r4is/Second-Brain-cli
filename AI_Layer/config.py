@@ -1,10 +1,10 @@
 import json
 from rich.panel import Panel
 
-from AI_Layer.communication import ask_ai
-from AI_Layer.model import CONSOLE, Model
-from AI_Layer.storage import save_config
-from AI_Layer.safe_guarding import ensure_model, safe_json
+from AI_Layer.model import CONSOLE, Model, get_flashcard_prompt, get_summary_prompt, get_quizz_prompt
+from AI_Layer.model import format_sum_print, format_card_print, format_quiz_print
+from AI_Layer.storage import save_config, save_generated
+from AI_Layer.safe_guarding import ensure_model, safe_json, ask_with_retry
 from Core_Features.notes import get_note
 from Core_Features.models import Note
 
@@ -47,48 +47,89 @@ def reset_config() -> Model:
     return save_config(model)  # saves the current configuration to the json file
 
 
+def note_find(actn: list, notes: list[Note], model: Model) -> Note | None:
+    ''' auxiliar function finds a note, and ensures validations '''
+
+    result = get_note(actn[1], notes)
+    if result == None: return CONSOLE.print("[red]ai_tools: Note not found[/red]")
+    
+    # ensures that the model is valid and ready to use
+    if ensure_model(model) == False: 
+        return CONSOLE.print("[red]ai_tools: Invalid model configuration. Please set the provider and model before using AI features.[/red]")
+
+    return result
+
+
 def sum_note(actn: list, notes: list[Note], model: Model) -> str:
     ''' summarizes a note using the AI model in json file '''
     try:
-        result = get_note(actn[1], notes)
-        if result == None: return CONSOLE.print("[red]ai_tools: Note not found[/red]")
-
-        # ensures that the model is valid and ready to use
-        if ensure_model(model) == False: 
-            return CONSOLE.print("[red]ai_tools: Invalid model configuration. Please set the provider and model before using AI features.[/red]")
-
-        prompt = f"""       
-        You are the summarization engine of Second Brain CLI, a personal knowledge-management tool.
-        Read the ENTIRE note before generating your response.
-        Your task is to:
-        1. Create a concise and descriptive title for the note.
-        2. Write a clear summary of its complete content.
-        3. Preserve the important concepts, facts, definitions, relationships, examples, and conclusions.
-        4. Do not invent information that is not present in the note.
-        5. Remove unnecessary repetition and irrelevant details.
-        6. Write the summary so that a university student can understand it without needing to reread the original note.
-        7. Keep the summary reasonably concise while retaining the important information.
-
-        Return ONLY valid JSON using exactly this structure:
-        {{
-            "title": "Generated title",
-            "summary": "Generated summary"
-        }}
-        NOTE TITLE: {result.title}
-        NOTE CONTENT: {result.content} """
+        result = note_find(actn, notes, model)
+        prompt = get_summary_prompt(result.title, result.content)
 
         # send the prompt to the AI model and get the response
-        raw = ask_ai(prompt, model)
-        answer = safe_json(raw)  # safely parse the JSON response
+        answer = safe_json(ask_with_retry(prompt, model))
 
         if answer == {} or "title" not in answer or "summary" not in answer: 
             return CONSOLE.print("[red]ai_tools: AI returned invalid JSON[/red]")
 
-        CONSOLE.print(      # displays the summary in a panel
-            Panel(
-                answer["summary"],
-                title = answer["title"],
-                expand = False
-            )
-        )
+        format_sum_print(answer["summary"], answer["title"])
+        save_generated(answer, "sum")
+        return CONSOLE.print(f"\n[green]ai_tools: Note summarized and added to database[/green]")
+
+    except ValueError as e: return CONSOLE.print(f"[red]ai_tools: {e}[/red]")
+
+
+def flashcards(actn: list, notes: list[Note], model: Model) -> str:
+    ''' generates flashcards for a note using the AI model '''
+    try:
+        result = note_find(actn, notes, model)
+        prompt = get_flashcard_prompt(result.title, result.content)
+
+        # send the prompt to the AI model and get the response
+        answer = safe_json(ask_with_retry(prompt, model))
+
+        if answer == {} or "cards" not in answer or not isinstance(answer["cards"], list) or len(answer["cards"]) == 0: 
+            return CONSOLE.print("[red]ai_tools: AI returned invalid JSON[/red]")
+
+        num_display = 1
+        for card in answer["cards"]:
+
+            if "front" not in card or "back" not in card: 
+                return CONSOLE.print("[red]ai_tools: AI returned invalid JSON[/red]")
+
+            num_display += 1
+
+            format_card_print(card["front"], card["back"], num_display)
+            save_generated(card, "cards")
+
+        return CONSOLE.print(f"\n[green]ai_tools: Flashcards generated.[/green]")
+
+    except ValueError as e: return CONSOLE.print(f"[red]ai_tools: {e}[/red]")
+
+
+def quiz(actn: list, notes: list[Note], model: Model) -> str:
+    ''' generates a quiz for a note using the AI model '''
+    try:
+        result = note_find(actn, notes, model)
+        prompt = get_quizz_prompt(result.title, result.content)
+
+        # send the prompt to the AI model and get the response
+        answer = safe_json(ask_with_retry(prompt, model))
+
+        if answer == {} or "questions" not in answer or not isinstance(answer["questions"], list) or len(answer["questions"]) == 0: 
+            return CONSOLE.print("[red]ai_tools: AI returned invalid JSON[/red]")
+
+        num_display = 1
+        for quest in answer["questions"]:
+
+            if "question" not in quest or "options" not in quest or "correct_answer" not in quest or "explanation" not in quest: 
+                return CONSOLE.print("[red]ai_tools: AI returned invalid JSON[/red]")
+
+            num_display += 1
+
+            format_quiz_print(quest["question"], quest["options"], quest["correct_answer"],
+                               quest["explanation"], num_display)
+            save_generated(quest, "quizz")
+        return CONSOLE.print(f"\n[green]ai_tools: Quiz generated.[/green]")
+
     except ValueError as e: return CONSOLE.print(f"[red]ai_tools: {e}[/red]")

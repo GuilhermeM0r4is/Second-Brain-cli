@@ -13,7 +13,7 @@ banner = """[bold cyan]
  ███████║██████╔╝██║  ██║██║  ██║██║██║ ╚████║
  ╚══════╝╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝
 [/bold cyan]
-              SBRAIN-CLI • B2.0
+              SBRAIN-CLI • B2.1
 """
 
 # set up the header for later usage
@@ -22,7 +22,7 @@ header = """
 use "|" as separator between arguments, and "-" for flags][/blue]
 
 [green]> [/green]Create note: [blue]c title | content | tags | fvr[/blue]
-[green]> [/green]List notes: [blue]l[/blue]
+[green]> [/green]List notes: [blue]l -@[/blue]
 [green]> [/green]Find note: [blue]f note_id or title or -tag[/blue]
 [green]> [/green]Update note: [blue]u title | content | tags | fvr[/blue]
 [green]> [/green]Delete note: [blue]d note_id or title[/blue]

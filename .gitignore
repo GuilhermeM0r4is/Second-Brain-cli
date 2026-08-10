@@ -10,6 +10,7 @@ venv/
 # Data files
 Storage/data.json
 Storage/ai_config.json
+Storage/generated.json
 
 # Project documentation
 PROJECT.md

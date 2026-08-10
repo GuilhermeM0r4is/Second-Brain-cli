@@ -2,6 +2,8 @@ from Core_Features.config import NOTE_ID_PREFIX, HELP_COMMAND, FAVORITE_TRUE
 from Core_Features.models import (Note, generate_note_id, note_info, txt_to_note, note_format_print)
 from Core_Features.storage import save_notes, load_notes
 from Core_Features.ui import print_header, CONSOLE
+from AI_Layer.storage import load_generated
+from AI_Layer.model import format_quiz_print, format_card_print, format_sum_print
 from collections import Counter
 
 def add_note(note: Note) -> None:
@@ -124,14 +126,39 @@ def note_update(actn: list, siz_action: int, notes: list[Note]) -> None:
         update_note(note, notes)
 
 
-def list_notes(notes: list[Note]) -> None:
-    ''' list all the notes in the JSON file '''
+def list_info(info: str, notes: list[Note]) -> None:
+    ''' list all the info in the JSON file '''
 
-    # prints the notes from the database
-    if len(notes) != 0: 
+    if info not in ["-n", "-sum", "-cards", "-quiz"] or info == None:
+        return CONSOLE.print("[red]list_info: Invalid usage[/red]")
+
+    if info == "-n":        # prints the notes from the database
+        if len(notes) == 0: CONSOLE.print("[red]list_info: No notes[/red]")
         for note in notes: note_format_print(note)
 
-    else: CONSOLE.print("[red]list_notes: No notes[/red]")
+    elif info == "-sum":
+        summarized_notes = load_generated("sum")
+
+        if len(summarized_notes) == 0: CONSOLE.print("[red]list_info: No summarized notes[/red]")
+        for note in summarized_notes: format_sum_print(note["summary"], note["title"])
+
+    elif info == "-cards":
+        flashcard_notes = load_generated("cards")
+        num_display = 1
+    
+        if len(flashcard_notes) == 0: CONSOLE.print("[red]list_info: No summarized notes[/red]")
+        for card in flashcard_notes: 
+            num_display += 1
+            format_card_print(card["front"], card["back"], num_display)
+
+    elif info == "-quiz":
+        quiz_notes = load_generated("quiz")
+    
+        if len(quiz_notes) == 0: CONSOLE.print("[red]list_info: No summarized notes[/red]")
+        for quiz in quiz_notes: 
+            num_display += 1
+            format_quiz_print(quiz["question"], quiz["options"], quiz["correct_option"],
+                              quiz["explanation"], num_display)
 
 
 def find_note(info: str, notes: list[Note]) -> None:

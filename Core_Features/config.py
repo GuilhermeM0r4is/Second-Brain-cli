@@ -14,7 +14,12 @@ HELP_COMMAND = {"-c": ("\n[green]create_note: creates a new note to be later on 
                         "\n[blue]create_note [/blue]can also work with files, use: [blue]c file_name.txt | <tags> | <fvr>[/blue]\n"
                         "[blue]example_usage: [/blue]c <title> | <content> | <tags> | <fvr>"),
 
-                "-l": ("\n[green]list_notes: lists all the notes and their respective contents.[/green]"),
+                "-l": ("\n[green]list_notes: lists all the notes and their respective contents.[/green]\n"
+                        "[cyan]-n: [/cyan]lists all notes.\n"
+                        "[cyan]-sum: [/cyan]lists all summarized notes.\n"
+                        "[cyan]-cards: [/cyan]lists all flashcards generated.\n"
+                        "[cyan]-quiz: [/cyan]lists all generated quizes.\n"
+                        "\n[blue]example_usage: [/blue]l -sum"),
 
                 "-f": ("\n[green]find_note: finds a note in the JSON file using their ID or Title[/green]\n"
                         "[cyan]note_id | title: [/cyan]id or title to look after.\n"
@@ -41,5 +46,9 @@ HELP_COMMAND = {"-c": ("\n[green]create_note: creates a new note to be later on 
                         "[cyan]-c | provider:<provider> | model:<model> | api_key:<api_key> [/cyan]changes the AI configuration.\n"
                         "[cyan]-r: [/cyan]resets the AI configuration.\n"
                         "[cyan]sum | title or note_id: [/cyan]summarizes a note given its ID or title.\n"
-                        "\n[blue]example_usage: [/blue]a -c | provider:openai | api_key:your_api_key\n")
+                        "[cyan]cards | title or note_id: [/cyan]generates flashcards for a note given its ID or title.\n"
+                        "[cyan]quiz | title or note_id: [/cyan]generates a quiz for a note given its ID or title.\n"
+                        "\n[blue]example_usage: [/blue]a -c | provider:openai | api_key:your_api_key\n"
+                        "[blue]example_usage: [/blue]a sum | really_cool_title\n"
+                        "[blue]example_usage: [/blue]a quiz | 2\n")
                         }
