@@ -120,12 +120,12 @@ The exact command set may evolve as development continues. Typical commands incl
 
 ```text
 c   Create a note
-l   List notes
+l   Lists content
 f   Find a note
 u   Update a note
 d   Delete a note
 s   Show statistics
-a  AI functionality
+a   AI functionalities
 h   Show help
 0   Exit
 ```
@@ -142,7 +142,7 @@ SB > f 1
 
 List notes:
 ```text
-SB > l
+SB > l -n
 ```
 
 ---
@@ -285,16 +285,16 @@ Each version introduces new functionality while attempting to improve the archit
 * [x] AI configuration system
 * [x] Provider configuration
 * [x] Ollama integration
-* [ ] OpenAI integration
-* [ ] Anthropic integration
-* [ ] Google Gemini integration
-* [ ] AI note summaries
-* [ ] AI-generated titles
-* [ ] Flashcard generation
-* [ ] Question generation
+* [X] OpenAI integration
+* [X] Anthropic integration
+* [X] Google Gemini integration
+* [X] AI note summaries
+* [X] AI-generated titles
+* [X] Flashcard generation
+* [X] Quiz generation
 
 ## B3 — Knowledge & Documents
-* [ ] PDF import
+* [ ] PDF import     <-- work in progress
 * [ ] PowerPoint import
 * [ ] Document text extraction
 * [ ] Automatic document-to-note conversion
