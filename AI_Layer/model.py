@@ -24,7 +24,7 @@ def format_sum_print(summary: str, title: str) -> str:
     )
 
 
-def format_card_print(front: str, back: str, num_disp: int) -> str:
+def format_card_print(front: str, back: str, title: str) -> str:
     """ formats the print output to give the flashcards info """
 
     CONSOLE.print(      # displays the summary in a panel
@@ -32,12 +32,12 @@ def format_card_print(front: str, back: str, num_disp: int) -> str:
             f"[cyan]{front}[/cyan]\n\n\n",
             f"[cyan]{back}[/cyan]",
             border_style="cyan", 
-            title = f"FLASHCARD {num_disp}",
+            title = f"{title}",
         )
     )
 
 
-def format_quiz_print(question: str, opt: str, c_answer: str, explanation: str, num_disp: int) -> str:
+def format_quiz_print(question: str, opt: str, c_answer: str, explanation: str, title: str) -> str:
     """ formats the print output to give the quizzes info """
 
     CONSOLE.print(      # displays the summary in a panel
@@ -47,7 +47,7 @@ def format_quiz_print(question: str, opt: str, c_answer: str, explanation: str, 
             f"[cyan]{c_answer}[/cyan]\n",
             f"[cyan]{explanation}[/cyan]",
             border_style="cyan", 
-            title = f"QUIZZ {num_disp}",
+            title = f"{title}",
         )
     )
 
@@ -99,10 +99,12 @@ FLASHCARDS_TEMPLATE = """
             "cards": 
             [
                 {
+                    "title": "Title of the flashcard"
                     "front": "Question or prompt",
                     "back": "Answer or explanation"
                 },  
                 {
+                    "title": "Another flashcard title"
                     "front": "Another question",
                     "back": "Another answer"
                 }
@@ -139,6 +141,7 @@ QUIZZ_TEMPLATE = """
             "questions": 
             [
                 {
+                "title": "Title of the quizz with number of the question"
                 "question": "What is the main idea of the note?",
                 "options": 
                     [
@@ -160,12 +163,12 @@ QUIZZ_TEMPLATE = """
 
 
 def get_summary_prompt(title: str, content: str) -> str:
-    return SUMMARIZE_TEMPLATE.format(title=title, content=content)
+    return SUMMARIZE_TEMPLATE.format(title = title, content = content)
 
 
 def get_flashcard_prompt(title: str, content: str) -> str:
-    return FLASHCARDS_TEMPLATE.format(title=title, content=content)
+    return FLASHCARDS_TEMPLATE.format(title = title, content = content)
 
 
 def get_quizz_prompt(title: str, content: str) -> str:
-    return QUIZZ_TEMPLATE.format(title=title, content=content)
+    return QUIZZ_TEMPLATE.format(title = title, content = content)

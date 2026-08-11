@@ -70,7 +70,7 @@ def save_generated(data: dict, kind: str) -> None:
 
     if kind == "sum": existing["sum"] = data
     elif kind == "cards": existing["cards"] = data
-    elif kind == "quizz": existing["quizz"] = data
+    elif kind == "quiz": existing["quiz"] = data
     else: existing["other"] = data
 
     # stores the data into the existing ones

@@ -14,18 +14,30 @@ HELP_COMMAND = {"-c": ("\n[green]create_note: creates a new note to be later on 
                         "\n[blue]create_note [/blue]can also work with files, use: [blue]c file_name.txt | <tags> | <fvr>[/blue]\n"
                         "[blue]example_usage: [/blue]c <title> | <content> | <tags> | <fvr>"),
 
-                "-l": ("\n[green]list_notes: lists all the notes and their respective contents.[/green]\n"
-                        "[cyan]-n: [/cyan]lists all notes.\n"
-                        "[cyan]-sum: [/cyan]lists all summarized notes.\n"
-                        "[cyan]-cards: [/cyan]lists all flashcards generated.\n"
-                        "[cyan]-quiz: [/cyan]lists all generated quizes.\n"
-                        "\n[blue]example_usage: [/blue]l -sum"),
+                "-l": ("\n[green]list_info: lists all the info and their respective contents.[/green]\n"
+                        "[cyan]notes: [/cyan]lists all notes.\n"
+                        "[cyan]sum: [/cyan]lists all summarized notes.\n"
+                        "[cyan]cards: [/cyan]lists all flashcards generated.\n"
+                        "[cyan]quiz: [/cyan]lists all generated quizes.\n"
+                        "\n[blue]example_usage: [/blue]l sum"),
 
-                "-f": ("\n[green]find_note: finds a note in the JSON file using their ID or Title[/green]\n"
-                        "[cyan]note_id | title: [/cyan]id or title to look after.\n"
-                        "[cyan]-tag: [/cyan]searches for a specific tag.\n"
-                        "[blue]example_usage: [/blue]f <note_id/title>\n"
-                        "[blue]example_usage: [/blue]f -tag <tag>"),
+                "-f": ("\n[green]find_info: finds in the JSON file the info looked for/green]\n"
+                        "[cyan]notes | note_id or title: [/cyan]note id or title to look after.\n"
+                        "[cyan]notes | -tag: [/cyan]searches for a specific tag for notes.\n"
+                        "[cyan]sum | title: [/cyan]searches for a title in summarized notes.\n"
+                        "[cyan]cards | title: [/cyan]searches for a title in flashcard notes.\n"
+                        "[cyan]quiz | title: [/cyan]searches for a title in all quiz notes.\n"
+                        "\n[blue]example_usage: [/blue]f <note_id/title>\n"
+                        "[blue]example_usage: [/blue]f notes | -tag <tag>\n"
+                        "[blue]example_usage: [/blue]f quiz | <title>\n"),
+
+                "-d": ("\n[green]delete_info: deletes the informatiin in JSON file using its ID or title[/green]\n"
+                        "[cyan]notes | note_id or title: [/cyan]id or title to look after.\n"
+                        "[cyan]sum | title: [/cyan]deletes for a title in summarized notes.\n"
+                        "[cyan]cards | title: [/cyan]deletes for a title in flashcard notes.\n"
+                        "[cyan]quiz | title: [/cyan]deletes for a title in all quiz notes.\n"
+                        "\n[blue]example_usage: [/blue]d notes | <note_id/title>\n"
+                        "\n[blue]example_usage: [/blue]d cards | <title>\n"),
                               
                 "-u": ("\n[green]update_note: updates an existing note in JSON file using the given info[/green]\n"
                         "[cyan]title: [/cyan]title of the note to look after;\n"
@@ -34,10 +46,6 @@ HELP_COMMAND = {"-c": ("\n[green]create_note: creates a new note to be later on 
                         "[cyan]fvr: [/cyan]if the note should be considered favorite or not - 0: false, 1: true.\n"
                         "\n[blue]update_note [/blue]can also work with files, use: [blue]u file_name.txt | <tags> | <fvr>[/blue]\n"
                         "[blue]update_note [/blue]can also update titles with: [blue]u note_title | -new_title[/blue]"),
-
-                "-d": ("\n[green]delete_note: deletes a note in the JSON file using their ID or Title[/green]\n"
-                        "[cyan]note_id | title: [/cyan]id or title to look after.\n"
-                        "\n[blue]example_usage: [/blue]d <note_id/title>"),
 
                 "-s": ("\n[green]notes_stats: shows some funny stats about your notes such as total, favorite's amount and favorite tag.[/green]"),
 

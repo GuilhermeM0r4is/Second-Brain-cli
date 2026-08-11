@@ -1,11 +1,9 @@
-import json
-from rich.panel import Panel
-
 from AI_Layer.model import CONSOLE, Model, get_flashcard_prompt, get_summary_prompt, get_quizz_prompt
 from AI_Layer.model import format_sum_print, format_card_print, format_quiz_print
 from AI_Layer.storage import save_config, save_generated
 from AI_Layer.safe_guarding import ensure_model, safe_json, ask_with_retry
-from Core_Features.notes import get_note
+from Core_Features.material import get_note
+from Core_Features.storage import load_notes
 from Core_Features.models import Note
 
 
@@ -60,10 +58,10 @@ def note_find(actn: list, notes: list[Note], model: Model) -> Note | None:
     return result
 
 
-def sum_note(actn: list, notes: list[Note], model: Model) -> str:
+def sum_note(actn: list, model: Model) -> str:
     ''' summarizes a note using the AI model in json file '''
     try:
-        result = note_find(actn, notes, model)
+        result = note_find(actn, load_notes(), model)
         prompt = get_summary_prompt(result.title, result.content)
 
         # send the prompt to the AI model and get the response
@@ -79,10 +77,10 @@ def sum_note(actn: list, notes: list[Note], model: Model) -> str:
     except ValueError as e: return CONSOLE.print(f"[red]ai_tools: {e}[/red]")
 
 
-def flashcards(actn: list, notes: list[Note], model: Model) -> str:
+def flashcards(actn: list, model: Model) -> str:
     ''' generates flashcards for a note using the AI model '''
     try:
-        result = note_find(actn, notes, model)
+        result = note_find(actn, load_notes(), model)
         prompt = get_flashcard_prompt(result.title, result.content)
 
         # send the prompt to the AI model and get the response
@@ -91,15 +89,12 @@ def flashcards(actn: list, notes: list[Note], model: Model) -> str:
         if answer == {} or "cards" not in answer or not isinstance(answer["cards"], list) or len(answer["cards"]) == 0: 
             return CONSOLE.print("[red]ai_tools: AI returned invalid JSON[/red]")
 
-        num_display = 1
         for card in answer["cards"]:
 
-            if "front" not in card or "back" not in card: 
+            if "front" not in card or "back" not in card or "title" not in card: 
                 return CONSOLE.print("[red]ai_tools: AI returned invalid JSON[/red]")
-
-            num_display += 1
-
-            format_card_print(card["front"], card["back"], num_display)
+            
+            format_card_print(card["front"], card["back"], card["title"])
             save_generated(card, "cards")
 
         return CONSOLE.print(f"\n[green]ai_tools: Flashcards generated.[/green]")
@@ -107,10 +102,10 @@ def flashcards(actn: list, notes: list[Note], model: Model) -> str:
     except ValueError as e: return CONSOLE.print(f"[red]ai_tools: {e}[/red]")
 
 
-def quiz(actn: list, notes: list[Note], model: Model) -> str:
+def quiz(actn: list, model: Model) -> str:
     ''' generates a quiz for a note using the AI model '''
     try:
-        result = note_find(actn, notes, model)
+        result = note_find(actn, load_notes(), model)
         prompt = get_quizz_prompt(result.title, result.content)
 
         # send the prompt to the AI model and get the response
@@ -119,16 +114,15 @@ def quiz(actn: list, notes: list[Note], model: Model) -> str:
         if answer == {} or "questions" not in answer or not isinstance(answer["questions"], list) or len(answer["questions"]) == 0: 
             return CONSOLE.print("[red]ai_tools: AI returned invalid JSON[/red]")
 
-        num_display = 1
         for quest in answer["questions"]:
 
-            if "question" not in quest or "options" not in quest or "correct_answer" not in quest or "explanation" not in quest: 
+            if "question" not in quest or "options" not in quest or "correct_answer" not in quest: 
+                return CONSOLE.print("[red]ai_tools: AI returned invalid JSON[/red]")
+            if "explanation" not in quest or "title" not in quest:
                 return CONSOLE.print("[red]ai_tools: AI returned invalid JSON[/red]")
 
-            num_display += 1
-
             format_quiz_print(quest["question"], quest["options"], quest["correct_answer"],
-                               quest["explanation"], num_display)
+                               quest["explanation"], quest["title"])
             save_generated(quest, "quizz")
         return CONSOLE.print(f"\n[green]ai_tools: Quiz generated.[/green]")
 

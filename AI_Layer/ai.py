@@ -4,7 +4,7 @@ from AI_Layer.config import change_config, reset_config, sum_note, flashcards, q
 from AI_Layer.model import Model, CONSOLE
 
 
-def ai_tools(actn: list, siz_action: int, notes: list[Note]) -> str | Model:
+def ai_tools(actn: list, siz_action: int) -> str | Model:
     ''' function that uses and executes all ai related commands '''
 
     model = load_config()
@@ -17,9 +17,9 @@ def ai_tools(actn: list, siz_action: int, notes: list[Note]) -> str | Model:
     # available options for the ai_tools command
     ai_options = {"-c": lambda: change_config(siz_action, model, actn),
                  "-r": lambda: reset_config(), 
-                 "sum": lambda: sum_note(actn, notes, model),
-                 "cards": lambda: flashcards(actn, notes, model),
-                 "quizz": lambda: quiz(actn, notes, model)} 
+                 "sum": lambda: sum_note(actn, model),
+                 "cards": lambda: flashcards(actn, model),
+                 "quizz": lambda: quiz(actn, model)} 
 
     if actn[0] in ai_options: return ai_options[actn[0]]()     # chooses the option from the dict
     return CONSOLE.print(f"[red]ai_tools: wrong command usage[/red]")
