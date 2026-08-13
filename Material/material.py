@@ -1,9 +1,9 @@
-from Core_Features.config import NOTE_ID_PREFIX, HELP_COMMAND, FAVORITE_TRUE
-from Core_Features.models import (Note, generate_note_id, note_info, txt_to_note, note_format_print)
-from Core_Features.storage import save_notes, load_notes
-from Core_Features.ui import print_header, CONSOLE
-from AI_Layer.storage import load_generated, save_generated
-from AI_Layer.model import format_quiz_print, format_card_print, format_sum_print
+from Material.config import NOTE_ID_PREFIX, HELP_COMMAND, FAVORITE_TRUE
+from Material.model import Note, generate_note_id, note_info, note_format_print
+from Material.storage import save_notes, load_notes
+from Material.ui import print_header, CONSOLE
+from AI.storage import load_generated, overwrite_generated
+from AI.model import format_quiz_print, format_card_print
 from collections import Counter
 
 def add_note(note: Note) -> None:
@@ -51,13 +51,12 @@ def update_note(note_updated: Note, notes: list[Note]) -> None:
 def info_restriction(items: dict, info: str) -> bool:
     ''' assures the generated item is working '''
 
-    if info not in ["sum", "cards", "quiz"] or info is None:
+    if info not in ["cards", "quiz"] or info is None:
         CONSOLE.print("[red]list_info: Invalid usage[/red]")
         return False
 
     if not items or len(items) == 0:
-        label = {"sum": "summarized notes",
-                "cards": "flashcards",
+        label = {"cards": "flashcards",
                 "quiz": "quizzes"
                 }.get(info, "generated items")
     
@@ -84,13 +83,7 @@ def norm_note_for_material(note: Note) -> dict:
 def norm_generated_for_material(item: dict, kind: str) -> dict:
     """ gets the item kind to return the correct study material """
 
-    if kind == "sum":
-        return {
-            "type": "sum",
-            "title": item.get("title", ""),
-            "content": item.get("summary", "")}
-
-    elif kind == "cards":
+    if kind == "cards":
         return {
             "type": "card",
             "title": item.get("title", ""),
@@ -104,7 +97,7 @@ def norm_generated_for_material(item: dict, kind: str) -> dict:
             "title": item.get("title", ""),
             "question": item.get("question", ""),
             "options": item.get("options", []),
-            "correct_option": item.get("correct_option", ""),
+            "correct_answer": item.get("correct_answer", ""),
             "explanation": item.get("explanation", "")}
 
     return {
@@ -125,18 +118,7 @@ def create_note(actn: list, siz_action: int) -> None:
     notes = load_notes()      # loads all the notes
     id = generate_note_id(notes)
 
-    # using a .txt file as note creation
-    if actn[0].endswith('.txt'): 
-        document_result = txt_to_note(actn[0])
-
-        # makes sure there were no errors and gets info
-        if document_result is None: return
-        title, content = document_result
-          
-        actn.insert(1, "-")   # allows note_info function to work
-        siz_action += 1
-
-    else: title = actn[0]; content = actn[1]     # it's a direct input in cmd
+    title = actn[0]; content = actn[1]     # it's a direct input in cmd
     
     note_information = note_info(actn, siz_action)      # uses the note_info to get the list of values
         
@@ -159,6 +141,7 @@ def list_info(info: str) -> None:
         if len(notes) == 0: return CONSOLE.print("[red]list_info: No notes[/red]")
 
         for note in notes:
+            print()
             material = norm_note_for_material(note)
             note_format_print(note)  # keep note formatter
         return
@@ -169,14 +152,12 @@ def list_info(info: str) -> None:
     for item in items:
         material = norm_generated_for_material(item, info)
 
-        if info == "sum": format_sum_print(material["summary"], material["title"])
-
-        elif info == "cards": 
+        if info == "cards": 
             format_card_print(material["front"], material["back"], material["title"])
 
         elif info == "quiz":
             format_quiz_print(material["question"], material["options"],
-                              material["correct_option"], material["explanation"], material["title"])
+                              material["correct_answer"], material["explanation"], material["title"])
 
 
 def find_info(info: str) -> None:
@@ -201,17 +182,14 @@ def find_info(info: str) -> None:
     items = load_generated(kind)
     if info_restriction(items, kind) == False: return
 
-    material = next((item for item in items[kind] if item.get("title") == query), None)
+    material = next((item for item in items if item.get("title") == query), None)
     if material is None: return CONSOLE.print(f"[red]find_info: No {kind} found with title '{query}'[/red]")
 
-    if kind == "sum": 
-        format_sum_print(material["summary"], material["title"])
-
-    elif kind == "cards": 
+    if kind == "cards": 
         format_card_print(material["front"], material["back"], material["title"])
 
     elif kind == "quiz": 
-        format_quiz_print(material["question"], material["options"], material["correct_option"],
+        format_quiz_print(material["question"], material["options"], material["correct_answer"],
                           material["explanation"], material["title"])
 
 
@@ -236,21 +214,18 @@ def delete_info(info: str) -> None:
     items = load_generated(kind)
     if info_restriction(items, kind) == False: return
     
-    material = next((item for item in items[kind] if item.get("title") == query), None)
+    material = next((item for item in items if item.get("title") == query), None)
     if material is None: return CONSOLE.print(f"[red]find_info: No {kind} found with title '{query}'[/red]")
 
-    items[kind].remove(material)
-    save_generated(items, kind)
+    items.remove(material)
+    overwrite_generated(items, kind)
     
-    if kind == "sum": 
-        format_sum_print(material["summary"], material["title"])
-    
-    elif kind == "cards": 
+    if kind == "cards": 
         format_card_print(material["front"], material["back"], material["title"])
     
     elif kind == "quiz": 
-        format_quiz_print(material["question"], material["options"], material["correct_option"],
-                              material["explanation"], material["title"])
+        format_quiz_print(material["question"], material["options"], material["correct_answer"],
+                          material["explanation"], material["title"])
 
 
 def note_update(actn: list, siz_action: int) -> None:
@@ -269,16 +244,7 @@ def note_update(actn: list, siz_action: int) -> None:
         CONSOLE.print("[green]update_note: Title updated [/green]", actn[0])
 
     else:
-        # using a .txt file as note creation
-        if actn[0].endswith('.txt'): 
-            document_result = txt_to_note(actn[0])
-        
-            # makes sure there were no errors and gets info
-            if document_result is None: return
-            title, content = document_result
-
-        else:     # it's a direct input in cmd
-            title = actn[0]; content = actn[1]
+        title = actn[0]; content = actn[1]
         
         # uses the note_info to get the list of values
         note_information = note_info(actn, siz_action)

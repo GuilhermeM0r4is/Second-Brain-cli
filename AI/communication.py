@@ -1,22 +1,17 @@
-from AI_Layer.model import Model
-from Core_Features.config import CONSOLE
-
-# all the AI providers and their respective functions are imported here
-import ollama
-from openai import OpenAI
-from anthropic import Anthropic
-from google import genai
-
+from AI.model import Model
+from Material.config import CONSOLE
 
 def ask_ollama(prompt: str, model: Model) -> str | None:
     ''' function that sends a prompt to the Ollama model and returns the response '''
+    import ollama
 
     message = [{"role": "user", "content": prompt}]
 
     if model.data_sharing == "LOCAL":   # uses local ollama to try to resume the note
         response = ollama.chat(
             model = model.model,
-            messages = message
+            messages = message,
+            options = {"temperature": 0.2}
         )
     elif model.data_sharing == "CLOUD":     # uses api_key ollama to try to resume the note
         client = ollama.Client(
@@ -24,10 +19,10 @@ def ask_ollama(prompt: str, model: Model) -> str | None:
             headers = {"Authorization": f"Bearer {model.api_key}"})
         
         response = client.chat(
-            model=model.model,
-            messages = message
+            model = model.model,
+            messages = message,
+            options = {"temperature": 0.2}
         )
-
     else: return CONSOLE.print(f"[red]ai_tools: Invalid data sharing option: {model.data_sharing}[/red]")
     return response.message.content
 
@@ -35,6 +30,7 @@ def ask_ollama(prompt: str, model: Model) -> str | None:
 def ask_openai(prompt: str, model: Model) -> str:
     ''' function that sends a prompt to the OpenAI model and returns the response '''
 
+    from openai import OpenAI
     client = OpenAI(api_key = model.api_key)
 
     response = client.responses.create(
@@ -47,6 +43,7 @@ def ask_openai(prompt: str, model: Model) -> str:
 def ask_anthropic(prompt: str, model: Model) -> str:
     ''' function that sends a prompt to the Anthropic model and returns the response '''
 
+    from anthropic import Anthropic
     client = Anthropic(api_key = model.api_key)
     response = client.messages.create(
         model = model.model,
@@ -64,6 +61,7 @@ def ask_anthropic(prompt: str, model: Model) -> str:
 def ask_gemini(prompt: str, model: Model) -> str:
     ''' function that sends a prompt to the Gemini model and returns the response '''
 
+    from google import genai
     client = genai.Client(api_key = model.api_key)
     response = client.models.generate_content(
         model = model.model,

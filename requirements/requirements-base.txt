@@ -1,0 +1,7 @@
+# Overall requirements to work
+rich
+PyMuPDF
+python-pptx
+
+# AI requirements
+ollama

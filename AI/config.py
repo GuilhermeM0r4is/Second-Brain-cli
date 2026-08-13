@@ -1,15 +1,18 @@
-from AI_Layer.model import CONSOLE, Model, get_flashcard_prompt, get_summary_prompt, get_quizz_prompt
-from AI_Layer.model import format_sum_print, format_card_print, format_quiz_print
-from AI_Layer.storage import save_config, save_generated
-from AI_Layer.safe_guarding import ensure_model, safe_json, ask_with_retry
-from Core_Features.material import get_note
-from Core_Features.storage import load_notes
-from Core_Features.models import Note
+from AI.model import CONSOLE, Model, get_flashcard_prompt, get_summary_prompt, get_quizz_prompt
+from AI.model import format_card_print, format_quiz_print
+from AI.storage import save_generated
+from AI.safe_guarding import ensure_model, safe_json, ask_with_retry
+from Material.material import get_note, create_note
+from Material.storage import load_notes
+from Material.model import Note
+from Storage.storage import save_storage
+from dataclasses import asdict
 
 
 def change_config(siz_action: int, model: Model, actn: list) -> str | Model:
     ''' function that changes the configuration of the AI model '''
 
+    if siz_action == 1: return CONSOLE.print(f"[green]ai_tools: {model}[/green]")
     if siz_action < 2: return CONSOLE.print(f"[red]ai_tools: Invalid action[/red]")
 
     for num in range(1, siz_action):
@@ -17,7 +20,7 @@ def change_config(siz_action: int, model: Model, actn: list) -> str | Model:
         # if the action is not in the correct format, we skip it
         if ":" not in actn[num]: return CONSOLE.print(f"[red]ai_tools: Invalid action format: {actn[num]}[/red]")
 
-        key, value = actn[num].split(":")     # splits the action into key and value
+        key, value = actn[num].split(":", 1)     # splits the action into key and value
         key = key.strip()
         value = value.strip()
 
@@ -31,18 +34,17 @@ def change_config(siz_action: int, model: Model, actn: list) -> str | Model:
         setattr(model, key, value)      # sets the attribute of the model to the new value
 
     CONSOLE.print(f"[green]ai_tools: Updated AI info to: provider: {model.provider} | model: {model.model} | data_sharing: {model.data_sharing}[/green]")
-    return save_config(model)  # saves the new configuration to the json file
+    return save_storage("ai", asdict(model))  # saves the new configuration to the json file
 
 
-def reset_config() -> Model:
+def reset_config() -> None:
     ''' resets the configuration of the AI model to default values '''
     
     model = Model(provider = "ollama", model = "NONE", api_key = "NONE", data_sharing = "LOCAL")
-        
     CONSOLE.print(f"[green]ai_tools: provider: {model.provider} | model: {model.model} | " 
                   f"api_key: {model.api_key} | data_sharing: {model.data_sharing}[/green]")
     
-    return save_config(model)  # saves the current configuration to the json file
+    return save_storage("ai", asdict(model))  # saves the current configuration to the json file
 
 
 def note_find(actn: list, notes: list[Note], model: Model) -> Note | None:
@@ -70,8 +72,8 @@ def sum_note(actn: list, model: Model) -> str:
         if answer == {} or "title" not in answer or "summary" not in answer: 
             return CONSOLE.print("[red]ai_tools: AI returned invalid JSON[/red]")
 
-        format_sum_print(answer["summary"], answer["title"])
-        save_generated(answer, "sum")
+        print()
+        create_note([answer["title"], answer["summary"]], 2)
         return CONSOLE.print(f"\n[green]ai_tools: Note summarized and added to database[/green]")
 
     except ValueError as e: return CONSOLE.print(f"[red]ai_tools: {e}[/red]")
@@ -93,11 +95,11 @@ def flashcards(actn: list, model: Model) -> str:
 
             if "front" not in card or "back" not in card or "title" not in card: 
                 return CONSOLE.print("[red]ai_tools: AI returned invalid JSON[/red]")
-            
+
             format_card_print(card["front"], card["back"], card["title"])
             save_generated(card, "cards")
 
-        return CONSOLE.print(f"\n[green]ai_tools: Flashcards generated.[/green]")
+        return CONSOLE.print(f"\n[green]ai_tools: {len(answer["cards"])}x Flashcards generated.[/green]")
 
     except ValueError as e: return CONSOLE.print(f"[red]ai_tools: {e}[/red]")
 
@@ -123,7 +125,18 @@ def quiz(actn: list, model: Model) -> str:
 
             format_quiz_print(quest["question"], quest["options"], quest["correct_answer"],
                                quest["explanation"], quest["title"])
-            save_generated(quest, "quizz")
-        return CONSOLE.print(f"\n[green]ai_tools: Quiz generated.[/green]")
+            save_generated(quest, "quiz")
 
+        return CONSOLE.print(f"\n[green]ai_tools: {len(answer["questions"])}x Quiz generated.[/green]")
+
+    except ValueError as e: return CONSOLE.print(f"[red]ai_tools: {e}[/red]")
+
+
+def all(actn: list, model: Model) -> str:
+    ''' does all the three generations at once '''
+    try:
+        sum_note(actn, model)
+        flashcards(actn, model)
+        quiz(actn, model)
+    
     except ValueError as e: return CONSOLE.print(f"[red]ai_tools: {e}[/red]")

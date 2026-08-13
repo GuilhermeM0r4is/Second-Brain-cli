@@ -1,9 +1,9 @@
-from Core_Features.config import SEPARATOR
-from Core_Features.ui import CONSOLE
-from Core_Features.material import (create_note, note_update, list_info, find_info, 
+from Material.config import SEPARATOR
+from Material.ui import CONSOLE
+from Material.material import (create_note, note_update, list_info, find_info, 
                                  delete_info, notes_stats, help)
-from Core_Features.storage import load_notes
-from AI_Layer.ai import ai_tools
+from AI.ai import ai_tools
+from Documents.documents import importing
 
 def main():
     ''' main function that keeps the program running all the time '''
@@ -26,6 +26,7 @@ def main():
                 "u": lambda: note_update(actn, len(actn)),
                 "s": lambda: notes_stats(),
                 "a": lambda: ai_tools(actn, len(actn)),
+                "i": lambda: importing(actn, len(actn)),
                 "h": lambda: help(actn)
                 }
 

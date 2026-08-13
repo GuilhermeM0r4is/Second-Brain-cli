@@ -1,6 +1,6 @@
 import json
-from Core_Features.ui import CONSOLE
-from Core_Features.models import Note
+from Material.ui import CONSOLE
+from Material.model import Note
 from dataclasses import asdict
 from pathlib import Path
 

@@ -1,6 +1,6 @@
 from datetime import datetime   # imports the datetime module to work with date and time
-from Core_Features.config import CONSOLE
-from Core_Features.config import NOTE_ID_PREFIX, FAVORITE_FALSE, FAVORITE_TRUE
+from Material.config import CONSOLE
+from Material.config import NOTE_ID_PREFIX, FAVORITE_FALSE, FAVORITE_TRUE
 from dataclasses import dataclass
 from rich.panel import Panel
 
@@ -31,22 +31,6 @@ def generate_note_id(notes: list[Note]) -> str:
 
     # returns the f-string value
     return f"{NOTE_ID_PREFIX}{value:04d}"
-
-
-def txt_to_note(txt: str) -> tuple[str, str] | None:
-    ''' creates a new note from a .txt file given '''
-    try:
-        # opens the file and uses it to get the components to create the note
-        with open(txt, "r", encoding='utf-8', errors='replace') as file:
-
-            title = file.readline().strip()
-            # the content comes as a whole string all together
-            content = ' '.join(line.strip() for line in file.readlines())
-
-        return title, content
-    
-    except FileNotFoundError: CONSOLE.print(f"[red]File Error: Not found[/red]")
-    except Exception as e: CONSOLE.print(f"[red]File Error: Failed reading file[/red]")
 
 
 def note_info(action: list, siz_action: int) -> tuple[str, str] | None:

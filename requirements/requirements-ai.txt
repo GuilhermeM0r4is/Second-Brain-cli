@@ -1,0 +1,4 @@
+# AI requirements for other companies
+openai
+anthropic
+google-genai

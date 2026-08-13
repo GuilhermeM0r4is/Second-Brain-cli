@@ -9,11 +9,8 @@ venv/
 
 # Data files
 Storage/data.json
-Storage/ai_config.json
+Storage/storage.json
 Storage/generated.json
-
-# Project documentation
-PROJECT.md
 
 # IDE files
 .vscode/
