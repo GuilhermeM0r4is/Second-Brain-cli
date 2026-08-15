@@ -4,12 +4,14 @@ import re
 from AI.communication import ask_ai
 from AI.model import Model, CONSOLE
 
-def ask_with_retry(prompt: str, model: Model, retries = 3) -> str | None:
+def ask_with_retry(prompt: str, model: Model, max_tokens: int) -> str | None:
     """ Sends a prompt to the AI model and retries if it fails."""
 
+    retries = 3
     for attempt in range(1, retries + 1):
         try: 
-            return ask_ai(prompt, model)
+            return ask_ai(prompt, model, max_tokens)
+        
         except Exception as e:
             if attempt == retries:
                 CONSOLE.print(f"[red]ai_tools: AI request failed after {retries} attempts: {e}[/red]")
@@ -38,29 +40,24 @@ def ensure_model(model: Model) -> bool:
     return True
 
 
-def clean_json_string(text: str) -> str:
-    ''' cleans the JSON string to ensure it's valid '''
+def ask_parsed_with_retry(prompt: str, model: Model, parser, max_tokens: int):
+    """ asks the model for plain text output and retries if parsing fails. """
 
-    if text is None or not isinstance(text, str): return ""
+    current_prompt = prompt
+    retries = 3
 
-    # Remove any characters before the first '{' and after the last '}'
-    match = re.search(r'\{.*\}', text, re.DOTALL)
-    if match: return match.group(0)
-    else: return ""
+    for attempt in range(1, retries + 1):
+        raw = ask_with_retry(current_prompt, model, max_tokens)
+        if raw is None: return None
 
+        result = parser(raw)
+        if result: return result
 
-def safe_json(text: str) -> dict:
-    ''' safely parses a JSON string into a dictionary '''
+        if attempt < retries:
+            CONSOLE.print(f"[yellow]ai_tools: Invalid output format, retrying ({attempt}/{retries})...[/yellow]")
+            current_prompt = prompt + """
 
-    if isinstance(text, dict): return text  # if it's already a dict, return it
-    if not isinstance(text, str) or text == "": return {}
+        Your previous response did not follow the required format exactly.
+        Try again. Use the exact labels and markers shown, plain text only. """
 
-    cleaned_text = clean_json_string(text)
-    if not cleaned_text: return {}
-
-    try:
-        return json.loads(cleaned_text)
-    
-    except json.JSONDecodeError:
-        CONSOLE.print("[red]ai_tools: AI returned invalid JSON[/red]")
-        return {}
+    return None

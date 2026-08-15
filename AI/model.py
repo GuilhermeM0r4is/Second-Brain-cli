@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from rich.console import Console
 from rich.panel import Panel
+import json
 
 CONSOLE = Console()
 
@@ -12,6 +13,7 @@ class Model:
     data_sharing: str | None = "LOCAL"  # default value for data sharing
 
 
+# ------------------------ PRINT FORMATATIONS ------------------------
 def format_card_print(front: str, back: str, title: str) -> str:
     """ formats the print output to give the flashcards info """
 
@@ -44,150 +46,185 @@ def format_quiz_print(question: str, opt: list, c_answer: str, explanation: str,
     )
 
 
-def get_summary_prompt(title: str, content: str) -> str:
+# ------------------------ SUMMARIZATION PROMPTS ------------------------
+MATH_SAFE_INSTRUCTIONS = """
+        MATH HANDLING (IMPORTANT):
+        This content contains complex mathematical notation. To avoid
+        introducing transcription errors:
+        - Describe what each formula or theorem represents in plain words.
+        - Name the formula/theorem if it has a name.
+        - For SHORT, simple expressions (e.g. f(x) = x^2), you may reproduce
+          them exactly.
+        - For longer or multi-step equations, matrices, or derivations,
+          do NOT attempt to rewrite them character-for-character. Instead say
+          something like: "(see the original note for the exact formula)".
+        Prioritize being correct and honest over appearing complete.
+"""
+
+
+def get_sumchunk_prompt(title: str, content: str, math_heavy: bool = False) -> str:
+    math_block = MATH_SAFE_INSTRUCTIONS if math_heavy else ""
 
     return f"""
-        You are the summarization engine of Second Brain CLI, a personal knowledge-management tool.
-        Read the ENTIRE note before generating your response.
+        You are a study-note extraction engine for Second Brain CLI.
+        You are processing ONE section of a larger university study document.
+        This is an INFORMATION EXTRACTION task, not an ultra-short summary.
+        {math_block}
 
-        Your task is to:
-        1. Create a concise and descriptive title for the note.
-        2. Write a clear summary of its complete content.
-        3. Preserve important concepts, facts, definitions, relationships, examples,
-           equations, numerical values, and conclusions.
-        4. Do not invent information that is not present in the note.
-        5. Remove unnecessary repetition and irrelevant details.
-        6. Write the summary so that a university student can understand it without
-           needing to reread the original note.
-        7. Keep the summary reasonably concise while retaining important information.
-
-        Return ONLY valid JSON using exactly this structure:
-
-        {{
-            "title": "Generated title",
-            "summary": "Generated summary"
-        }}
-
-        - Do not use Markdown.
-        - Do not wrap the JSON in ```json.
-        - Do not include any text outside the JSON.
-
-        NOTE TITLE: {title}
-        NOTE CONTENT: {content}
-    """
-
-
-def get_flashcard_prompt(title: str, content: str) -> str:
-
-    return f"""
-        You are the flashcard generation engine of Second Brain CLI,
-        a personal knowledge-management and study tool.
-
-        Read the ENTIRE note before generating the flashcards.
-
-        Your task is to create useful study flashcards based ONLY on the
-        information contained in the note.
+        IMPORTANT: Respond in the SAME language as the NOTE CONTENT below.
+        If the content is in Portuguese, respond in Portuguese. Do not translate.
 
         Requirements:
-        1. Identify the most important concepts, facts, definitions, relationships,
-           processes, equations, and examples.
-        2. Create clear questions or prompts for the front of each card.
-        3. Provide accurate answers or explanations for the back of each card.
-        4. Make each card test one specific concept whenever possible.
-        5. Avoid trivial questions or cards containing unnecessary information.
-        6. Do not invent, assume, or add information that is not present in the note.
-        7. Avoid creating duplicate or nearly identical cards.
-        8. Make the cards useful for active recall.
-        9. Use the terminology and concepts from the original note.
-        10. Generate as many cards as necessary to cover the important information,
-            while avoiding unnecessary repetition.
+        1. Preserve every important concept introduced in this section.
+        2. Preserve definitions and their conditions.
+        3. Preserve equations and mathematical notation as accurately as possible.
+        4. Preserve important examples and what they demonstrate.
+        5. Preserve numerical values and special cases.
+        6. Do not invent information or use outside knowledge.
+        7. Prefer completeness over brevity.
 
-        Return ONLY valid JSON using exactly this structure:
+        Respond using EXACTLY this plain text format, nothing else:
 
-        {{
-            "cards": [
-                {{
-                    "title": "Title of the flashcard",
-                    "front": "Question or prompt",
-                    "back": "Answer or explanation"
-                }},
-                {{
-                    "title": "Another flashcard title",
-                    "front": "Another question",
-                    "back": "Another answer"
-                }}
-            ]
-        }}
+        SUMMARY:
+        Detailed summary of this section, can span multiple lines.
+        KEY_POINTS:
+        - Important concept 1
+        - Important concept 2
+        - Important concept 3
 
-        - Do not use Markdown.
-        - Do not wrap the JSON in ```json.
-        - Do not include any text outside the JSON.
+        Do not use Markdown. Do not add any text before SUMMARY: or after the last key point.
 
-        NOTE TITLE: {title}
-        NOTE CONTENT: {content}
-    """
+        ORIGINAL NOTE TITLE: {title}
+        SECTION CONTENT: {content} """
 
-def get_quiz_prompt(title: str, content: str) -> str:
+
+def get_synthesis_prompt(title: str, summaries: list[dict]) -> str:
+    sections = []
+    for index, summary in enumerate(summaries, start=1):
+        sections.append(f"""SECTION {index} Summary: {summary["summary"]} Key points:
+                        {chr(10).join(f"- {point}" for point in summary["key_points"])}""")
 
     return f"""
-        You are the quiz generation engine of Second Brain CLI,
-        a personal knowledge-management and study tool.
+        You are creating a study note from multiple sections of the same source document.
+        Original document title: {title}
+        Combine the sections into ONE comprehensive study note. Do not just
+        summarize the summaries again — merge overlapping concepts, preserve
+        definitions, formulas, theorems, examples, and terminology.
 
-        Read the ENTIRE note before generating the quiz.
+        CRITICAL FORMATTING RULES:
+        - Do NOT include labels like "SECTION 1", "SECTION 2", etc. in your output.
+        - Write as one continuous, flowing document with natural topic transitions,
+          not a list of separate sections.
+        - When restating a formula or equation that appeared in a section, copy it
+          EXACTLY as given rather than rederiving, simplifying, or reformatting it.
+          Do not attempt to recompute or paraphrase mathematical expressions.
 
-        Your task is to create multiple-choice questions that test the student's
-        understanding of the important information contained in the note.
+        Preserve:
+        - definitions
+        - important formulas
+        - theorems
+        - conditions
+        - examples
+        - mathematical relationships
+        - important terminology
+        - distinctions between concepts
 
-        Requirements:
-        1. Identify the most important concepts, facts, definitions, relationships,
-           processes, equations, and examples in the note.
-        2. Create clear and unambiguous multiple-choice questions.
-        3. Each question must have exactly 4 possible options.
-        4. Each question must have exactly ONE correct answer.
-        5. Make incorrect options plausible and related to the topic, but clearly
-           incorrect according to the note.
-        6. Vary which position (1st, 2nd, 3rd, 4th) holds the correct answer across questions.
-        7. Provide the correct answer as the exact text of the corresponding option.
-        8. Provide a concise explanation explaining why the correct answer is correct.
-        9. Questions should test understanding and recall rather than trivial details
-           whenever possible.
-        10. Do not create duplicate or nearly identical questions.
-        11. Do not invent, assume, or add information that is not present in the note.
-        12. Use the terminology and concepts from the original note.
-        13. Generate enough questions to cover the important information while
-            avoiding unnecessary repetition.
-        14. The "title" field must be a short descriptive label based on the question's 
-            topic (e.g. "Mitochondria and ATP Production"), never a literal placeholder 
-            or a generic "Question N" pattern.
+        Remove:
+        - duplicated explanations
+        - repeated definitions
+        - unnecessary wording
 
-        Example of a correctly filled question (for a note about the solar system):
+        Do NOT remove information merely because it makes the final answer longer.
+        If two sections discuss the same concept, combine them rather than
+        replacing both with a shorter generic explanation.
 
-        {{
-            "title": "Largest Planet",
-            "question": "Which planet is the largest in the solar system?",
-            "options": ["Earth", "Jupiter", "Saturn", "Mars"],
-            "correct_answer": "Jupiter",
-            "explanation": "Jupiter is the largest planet by both mass and volume."
-        }}        
-        
-        Return ONLY valid JSON using exactly this structure:
+        Organize the final note logically according to the progression of the
+        material. The final result should be substantially more detailed than any individual
+        chunk summary.
+        Write in the same language as the source material.
 
-        {{
-            "questions": [
-                {{
-                    "title": "...",
-                    "question": "...",
-                    "options": ["...", "...", "...", "..."],
-                    "correct_answer": "...",
-                    "explanation": "..."
-                }}
-            ]
-        }}
+        Respond using EXACTLY this plain text format, nothing else:
 
-        - Do not use Markdown.
-        - Do not wrap the JSON in ```json.
-        - Do not include any text outside the JSON.
+        TITLE: Vectors and Linear Transformations in R^3
+        SUMMARY:
+        Directional derivatives measure the rate of change of a function along a given
+        vector, computed as the dot product of the gradient with that vector...
+
+        The TITLE and SUMMARY content above is only an example of the FORMAT and
+        writing style — replace both with content describing THIS note's real
+        material. Never output that example text verbatim.
+
+        Do not use Markdown.
+        SOURCE SECTIONS: {"".join(sections)} """
+
+
+# ------------------------ FLASHCARD + QUIZ PROMPTS ------------------------
+def get_flashcard_prompt(title: str, content: str, math_heavy: bool = False) -> str:
+    math_block = MATH_SAFE_INSTRUCTIONS if math_heavy else ""
+
+    return f"""
+        You are the flashcard generation engine of Second Brain CLI.
+        Create university-level study flashcards ONLY from information in the note.
+        Preserve equations, variables, and technical notation accurately.
+        Do not invent information. Avoid trivial or duplicate cards.
+        The title must identify the specific concept, never "Question 1" or similar.
+        {math_block}
+
+        IMPORTANT: Respond in the SAME language as the NOTE CONTENT below.
+        If the content is in Portuguese, respond in Portuguese. Do not translate.
+
+        Respond using EXACTLY this plain text format, repeating the CARD block
+        for each flashcard, nothing else:
+
+        CARD
+        TITLE: Specific concept name
+        FRONT: Question or prompt
+        BACK: Answer or explanation
+        ENDCARD
+
+        CARD
+        TITLE: Another concept
+        FRONT: Another question
+        BACK: Another answer
+        ENDCARD
+
+        Do not use Markdown. Do not add any text outside the CARD blocks.
 
         NOTE TITLE: {title}
-        NOTE CONTENT: {content}
-    """
+        NOTE CONTENT: {content} """
+
+
+def get_quiz_prompt(title: str, content: str, math_heavy: bool = False) -> str:
+    math_block = MATH_SAFE_INSTRUCTIONS if math_heavy else ""
+
+    return f"""
+        You are the quiz generation engine of Second Brain CLI.
+        Create university-level multiple-choice questions using ONLY the note's content.
+        Preserve equations and notation accurately. Do not invent information.
+        Incorrect options must be plausible but wrong according to the note.
+        The title must describe the concept tested, never the question number.
+        {math_block}
+
+        IMPORTANT: Respond in the SAME language as the NOTE CONTENT below.
+        If the content is in Portuguese, respond in Portuguese. Do not translate.
+
+        Respond using EXACTLY this plain text format, repeating the QUESTION
+        block for each question, nothing else:
+
+        QUESTION
+        TITLE: Specific concept name
+        TEXT: The question text
+        OPTION1: First option
+        OPTION2: Second option
+        OPTION3: Third option
+        OPTION4: Fourth option
+        CORRECT: 3
+        EXPLANATION: Short explanation based on the note.
+        ENDQUESTION
+
+        CORRECT must be the NUMBER (1, 2, 3, or 4) of the correct option, not its text.
+
+        Do not use Markdown. Do not add any text outside the QUESTION blocks.
+
+        NOTE TITLE: {title}
+        NOTE CONTENT: {content} """

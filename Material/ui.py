@@ -13,7 +13,7 @@ banner = """[bold cyan]
  ███████║██████╔╝██║  ██║██║  ██║██║██║ ╚████║
  ╚══════╝╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝
 [/bold cyan]
-              SBRAIN-CLI • B3.3
+              SBRAIN-CLI • B3.4
 """
 
 # set up the header for later usage

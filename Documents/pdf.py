@@ -1,8 +1,9 @@
 from pathlib import Path
 import pymupdf
+import unicodedata
 from PIL import Image
 from Documents.model import Document
-from Documents.ocr import extract_text, ask_ocr, looks_garbled
+from Documents.ocr import extract_text, ask_ocr, looks_garbled, clean_ocr_text
 from Material.config import CONSOLE
 
 
@@ -31,7 +32,7 @@ def get_meaningful_images(page, min_area: float = 0.05):
 
 
 def import_pdf(path: Path, dpi: int, language: str) -> Document:
-    """ imports a PDF and optionally uses OCR for image-only pages """
+    """ imports a PDF and optionally uses OCR for image-only or unreliable-text pages """
 
     text = []; pages = 0
     has_text = False; has_images = False; ocr_used = False
@@ -41,36 +42,39 @@ def import_pdf(path: Path, dpi: int, language: str) -> Document:
             pages = len(pdf); page_information = []
 
             for page in pdf:
-                # checks each page inside the pdf
-                import unicodedata
                 page_text = unicodedata.normalize("NFC", page.get_text("text", sort=True)).strip()
-                usable_text = page_text and not looks_garbled(page_text)
+                is_usable = bool(page_text) and not looks_garbled(page_text)
 
                 images = get_meaningful_images(page)
 
-                page_information.append((page, usable_text, images))
+                page_information.append((page, page_text, is_usable, images))
 
-                if usable_text: has_text = True
+                if is_usable: has_text = True
                 if images: has_images = True
 
-            use_ocr = False
-            has_ocr_candidates = any(images or not usable_text for _, _, images, usable_text in page_information)
+            has_ocr_candidates = any((not is_usable) or images for _, _, is_usable, images in page_information)
 
+            use_ocr = False
             if has_ocr_candidates: use_ocr = ask_ocr(path, pages)
 
-            for page, usable_text, images in page_information:
-                if usable_text: text.append(usable_text)    # Normal selectable text
+            for page, page_text, is_usable, images in page_information:
+                if is_usable and not use_ocr:
+                    text.append(page_text)
+                    continue
 
-                if images and use_ocr:
+                if use_ocr:
                     image = render_page(page, dpi)
-
-                    ocr_text = extract_text(image, language)
+                    ocr_text = clean_ocr_text(extract_text(image, language))
 
                     if ocr_text:
                         text.append(ocr_text)
                         ocr_used = True
 
+                    elif is_usable: text.append(page_text)
+
     except Exception as e: return CONSOLE.print(f"[red]import_documents: Error: {e}[/red]")
 
     title = (path.stem.replace("_", " ").replace("-", " "))
-    return Document(title, "\n\n".join(text), pages, has_text, has_images, ocr_used)
+    full_text = "\n\n".join(t for t in text if t.strip())   # skip pages that ended up empty after cleaning
+
+    return Document(title, full_text, pages, has_text, has_images, ocr_used)

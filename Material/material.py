@@ -221,11 +221,10 @@ def delete_info(info: str) -> None:
     overwrite_generated(items, kind)
     
     if kind == "cards": 
-        format_card_print(material["front"], material["back"], material["title"])
+        return CONSOLE.print("[green]delete_note: Flashcard deleted[/green]")
     
     elif kind == "quiz": 
-        format_quiz_print(material["question"], material["options"], material["correct_answer"],
-                          material["explanation"], material["title"])
+        return CONSOLE.print("[green]delete_note: Quiz question deleted[/green]")
 
 
 def note_update(actn: list, siz_action: int) -> None:

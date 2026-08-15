@@ -55,9 +55,9 @@ def note_format_print(note: Note) -> None:
     ''' prints the note in the determined format '''
 
     CONSOLE.print(Panel(
-        f"[cyan]Title:[/cyan] {note.title}\n"
+        f"[cyan]Id:[/cyan] {note.id}\n"
         f"[cyan]Content:[/cyan] {note.content}\n"
         f"[cyan]Tags:[/cyan] {note.tags}\n"
         f"[cyan]Created At:[/cyan] {note.created_at}\n"
         f"[cyan]Favorite:[/cyan] {note.favorite}", 
-        border_style="cyan", title=note.id))
+        border_style="cyan", title = note.title))
