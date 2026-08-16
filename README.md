@@ -175,10 +175,11 @@ The command set may evolve as development continues.
 |---------|-------------|
 | `c` | Create a note |
 | `l` | List content |
-| `f` | Find a note |
-| `u` | Update a note |
-| `d` | Delete a note |
+| `f` | Find a material |
+| `u` | Update a material |
+| `d` | Delete a material |
 | `s` | Show statistics |
+| `i` | Import documents |
 | `a` | AI functionalities |
 | `h` | Show help |
 | `0` | Exit |
@@ -186,19 +187,19 @@ The command set may evolve as development continues.
 Create a note:
 
 ```
-SB > c | Algorithms | QuickSort | algorithms
+SB > c | Algorithms | QuickSort | algorithms | 1
 ```
 
 Find a note by ID or title:
 
 ```
-SB > f 1
+SB > f notes | 1
 ```
 
 List notes:
 
 ```
-SB > l -n
+SB > l notes
 ```
 
 ---
@@ -219,14 +220,14 @@ SBRAIN's AI layer is provider-independent.
 Install Ollama and download a model:
 
 ```bash
-ollama pull llama3.2
+ollama pull qwen3:1.7b
 ```
 
 Example SBRAIN configuration:
 
 ```
 Provider: Ollama
-Model: llama3.2
+Model: qwen3:1.7b
 API_key: NONE
 Data_sharing: LOCAL
 ```
@@ -251,10 +252,7 @@ Storage/
 └── storage.py
 ```
 
-`data.json` is included locally but excluded from Git through `.gitignore`.
-
 Each user therefore has their own independent local database.
-
 The project is currently migrating the persistence layer from JSON toward SQLite.
 
 ---
@@ -346,8 +344,6 @@ Contains the main knowledge-management functionality, including notes/material, 
 ### `Storage/`
 Contains persistent application data and the storage layer.
 
-`data.json` is ignored by Git so every installation has its own local data.
-
 ### `Documents/`
 Handles document importing and processing, including:
 
@@ -415,6 +411,7 @@ The project focuses on:
 - [x] Structured AI responses
 
 ### B3 — Knowledge & Documents
+- [x] Markdown rendering
 - [x] PDF import
 - [x] PowerPoint import
 - [x] Document text extraction
@@ -434,7 +431,6 @@ The project focuses on:
 - [ ] Progress tracking
 
 ### Future
-- [ ] Markdown rendering
 - [ ] Cloud synchronization
 - [ ] Encryption
 - [ ] Custom AI prompts
@@ -448,7 +444,7 @@ The project focuses on:
 
 ## Project Status
 
-**Current version:** B3 — Knowledge & Documents
+**Current version:** B3.4 — Knowledge & Documents
 
 Document processing is now implemented, including PDF and PowerPoint importing, text extraction, OCR, chunking, and automatic document-to-note conversion.
 
