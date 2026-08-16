@@ -1,172 +1,230 @@
 # Second Brain CLI
+
 > A modular, privacy-focused terminal-based personal knowledge management and study assistant built with Python.
 
-Second Brain CLI (SBRAIN) is a personal knowledge-management tool designed to help students organize notes, manage study material, and eventually use AI to summarize and transform their knowledge into useful study resources.
-The project is being developed progressively as a personal software-engineering project, with a focus on clean architecture, modularity, persistence, CLI design, and AI integration.
+Second Brain CLI (SBRAIN) is a personal knowledge-management tool designed to help students organize notes, manage study material, and use AI to summarize and transform their knowledge into useful study resources.
+
+The project is developed progressively as a personal software-engineering project, focusing on clean architecture, modularity, persistence, CLI design, document processing, and AI integration.
 
 ---
 
 ## Features
 
 ### Core Features
-* Create notes
-* List notes
-* Search notes by ID or title
-* Update existing notes
-* Delete notes
-* Manage tags
-* Search notes by tags
-* Manage favorite notes
-* View note statistics
-* Persistent local JSON storage
-* Rich terminal interface
-* Command-based CLI
+- Create, list, search, update, and delete notes
+- Manage tags and favorite notes
+- Search notes by tags
+- View note statistics
+- Persistent local JSON storage
+- Rich terminal interface
+- Command-based CLI
 
 ### AI Features
-SBRAIN is being extended with a provider-independent AI layer supporting:
+- Local AI models through Ollama
+- Cloud AI providers through API keys
+- AI-generated note summaries
+- AI-generated titles
+- Flashcard generation
+- Quiz/question generation
+- AI document chunk processing
+- Automatic document-to-note conversion
 
-* Local AI models through Ollama
-* Cloud AI providers through API keys
-* AI-generated note summaries
-* AI-generated titles
-* Flashcard generation
-* Question generation
-
-The AI layer is designed so that the core application does not depend on a specific AI provider.
+### Document Features
+- PDF import
+- PowerPoint (`.pptx`) import
+- Document text extraction
+- OCR for scanned/image-based documents
+- Automatic document-to-note conversion
+- Document chunking
 
 ---
 
 ## Privacy
+
 Privacy is an important design goal of SBRAIN.
 
-The application is designed to support **local AI processing**, allowing users to run models directly on their own machine through Ollama. When using a cloud provider, the user explicitly configures their own API credentials. The project does not require a central SBRAIN server or account.
+The application supports **local AI processing** through Ollama. Cloud providers can also be configured using the user's own API credentials.
+
+SBRAIN does not require a central server or account.
+
 > Local models are recommended when working with sensitive or private study material.
 
 ---
 
 ## Requirements
-* Python 3.10+
-* Git
-* Ollama (optional, only required for local AI functionality)
 
-Python dependencies:
-```text
-rich
-openai
-anthropic
-google-genai
-ollama
-```
+- Python 3.10+
+- Git
+- Ollama *(optional, required only for local AI)*
+- Tesseract OCR *(required for OCR functionality)*
 
-These dependencies are listed in `requirements.txt`.
+Python dependencies are listed in `requirements.txt` and include the libraries required for:
 
----
+- Terminal UI
+- AI provider communication
+- Ollama
+- PDF processing
+- PowerPoint processing
+- OCR
+- Document/text extraction
 
-## Installation
+Install all Python dependencies with:
 
-### 1. Clone the repository
-```bash
-git clone https://github.com/GuilhermeM0r4is/Second-Brain-cli.git
-```
-
-Enter the project directory:
-```bash
-cd Second-Brain-cli
-```
-
-### 2. Create a virtual environment
-Windows:
-```bash
-python -m venv venv
-```
-
-Activate it:
-```bash
-venv\Scripts\activate
-```
-
-Linux/macOS:
-```bash
-python3 -m venv venv
-source venv/bin/activate
-```
-
-### 3. Install dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
 ---
 
+## Tesseract OCR
+
+SBRAIN uses Tesseract OCR for scanned and image-based documents.
+
+Tesseract is a system dependency and must be installed separately from the Python packages.
+
+### Windows
+
+Install Tesseract OCR and ensure the executable is available to SBRAIN.
+
+A typical installation path is:
+
+```
+C:\Program Files\Tesseract-OCR\tesseract.exe
+```
+
+### Linux
+
+```bash
+sudo apt install tesseract-ocr
+```
+
+### macOS
+
+```bash
+brew install tesseract
+```
+
+Verify the installation with:
+
+```bash
+tesseract --version
+```
+
+Tesseract is only required when OCR functionality is used.
+
+---
+
+## Installation
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/GuilhermeM0r4is/Second-Brain-cli.git
+cd Second-Brain-cli
+```
+
+### 2. Create a virtual environment
+
+**Windows**
+```bash
+python -m venv venv
+venv\Scripts\activate
+```
+
+**Linux/macOS**
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+### 3. Install Python dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Install Tesseract
+
+Follow the Tesseract OCR instructions above if OCR functionality is required.
+
+---
+
 ## Running SBRAIN
-From the root directory:
+
+From the project root:
 
 ```bash
 python run.py
 ```
 
-The application will start directly in the terminal.
 Example:
-```text
+
+```
 SB > h
 ```
 
-The help command displays the available commands.
+Use `h` to display the available commands.
 
 ---
 
 ## Command Overview
-The exact command set may evolve as development continues. Typical commands include:
 
-```text
-c   Create a note
-l   Lists content
-f   Find a note
-u   Update a note
-d   Delete a note
-s   Show statistics
-a   AI functionalities
-h   Show help
-0   Exit
+The command set may evolve as development continues.
+
+| Command | Description |
+|---------|-------------|
+| `c` | Create a note |
+| `l` | List content |
+| `f` | Find a note |
+| `u` | Update a note |
+| `d` | Delete a note |
+| `s` | Show statistics |
+| `a` | AI functionalities |
+| `h` | Show help |
+| `0` | Exit |
+
+Create a note:
+
 ```
-
-Example to create a note with <title> <content> <tag>:
-```text
 SB > c | Algorithms | QuickSort | algorithms
 ```
 
-Find a note by ID (can also be by title):
-```text
+Find a note by ID or title:
+
+```
 SB > f 1
 ```
 
 List notes:
-```text
+
+```
 SB > l -n
 ```
 
 ---
 
-# AI Configuration
-SBRAIN's AI layer is designed to support multiple providers.
+## AI Configuration
 
-Currently supported/planned providers include:
-* Ollama
-* OpenAI
-* Anthropic
-* Google Gemini
+SBRAIN's AI layer is provider-independent.
+
+### Supported Providers
+- Ollama
+- OpenAI
+- Anthropic
+- Google Gemini
+- Ollama Cloud
 
 ### Local AI with Ollama
-Ollama allows models to run locally on the user's computer.
-After installing Ollama and downloading a model, SBRAIN can communicate with the local Ollama service.
-For example:
+
+Install Ollama and download a model:
 
 ```bash
 ollama pull llama3.2
 ```
 
-The SBRAIN configuration can then be set to use:
-```text
+Example SBRAIN configuration:
+
+```
 Provider: Ollama
 Model: llama3.2
 API_key: NONE
@@ -176,163 +234,260 @@ Data_sharing: LOCAL
 No external API key is required for local Ollama models.
 
 ### Cloud Providers
-Users may alternatively configure an API provider using their own API credentials.
-Examples include:
 
-```text
-OpenAI
-Anthropic
-Google Gemini
-Ollama Cloud
-```
+Users can configure supported cloud providers using their own API credentials.
 
-<<<< API keys should **never be committed to Git**. >>>>
+> API keys should never be committed to Git.
 
 ---
 
-# Data Storage
-The current version uses JSON for persistence.
-Local application data is stored inside:
+## Data Storage
 
-```text
+The current application data is stored locally:
+
+```
 Storage/
-└── data.json
+├── data.json
+└── storage.py
 ```
 
-The JSON database is intentionally excluded from Git through `.gitignore`. This means every user has their own local database.
-Future versions will migrate the persistence layer to SQLite.
+`data.json` is included locally but excluded from Git through `.gitignore`.
+
+Each user therefore has their own independent local database.
+
+The project is currently migrating the persistence layer from JSON toward SQLite.
 
 ---
 
-# Project Structure
-```text
+## Document Processing
+
+SBRAIN contains a dedicated document-processing layer for importing and converting study material.
+
+Current pipeline:
+
+```
+Document
+   ↓
+Import
+   ↓
+Text Extraction / OCR
+   ↓
+Chunking
+   ↓
+AI Processing
+   ↓
+Automatic Note Creation
+```
+
+Currently implemented:
+
+- PDF import
+- PowerPoint import
+- Text extraction
+- OCR
+- Document extraction
+- Chunking
+- Automatic document-to-note conversion
+
+The next stage is SQLite migration, followed by embeddings, vector storage, and RAG.
+
+---
+
+## Project Structure
+
+```
 Second-Brain-cli/
 │
 ├── run.py
 │
-├── AI_Layer/
+├── AI/
 │   ├── __init__.py
 │   ├── ai.py
-│   ├── ai_config.py
-│   └── model.py
+│   ├── communication.py
+│   ├── config.py
+│   ├── model.py
+│   ├── parsing.py
+│   ├── safe_guarding.py
+│   └── storage.py
 │
-├── Core_Features/
+├── Material/
 │   ├── __init__.py
 │   ├── main.py
 │   ├── models.py
-│   ├── notes.py
+│   ├── material.py
 │   ├── storage.py
 │   ├── ui.py
 │   └── config.py
 │
 ├── Storage/
-│   └── data.json
+│   ├── data.json
+│   └── storage.py
+│
+├── Documents/
+│   ├── __init__.py
+│   ├── documents.py
+│   ├── model.py
+│   ├── ocr.py
+│   ├── pdf.py
+│   ├── pptx.py
+│   └── text.py
 │
 ├── requirements.txt
 ├── .gitignore
 └── README.md
 ```
 
-The architecture is separated into layers so that functionality can be developed independently.
+### `AI/`
+Handles AI providers, model configuration, communication, response parsing, safety checks, and AI-related storage.
 
-### `Core_Features`
-Contains the main application logic, note management, persistence, configuration and terminal interface.
+### `Material/`
+Contains the main knowledge-management functionality, including notes/material, tags, favorites, statistics, CLI functionality, and material management.
 
-### `AI_Layer`
-Contains AI-related functionality and provider configuration.
+### `Storage/`
+Contains persistent application data and the storage layer.
 
-### `Storage`
-Contains local persistent application data.
+`data.json` is ignored by Git so every installation has its own local data.
+
+### `Documents/`
+Handles document importing and processing, including:
+
+- PDF
+- PowerPoint
+- OCR
+- Text extraction
+- Document models
+- Document management
 
 ### `run.py`
-Acts as the application entry point.
+Application entry point.
 
 ---
 
-# Development Philosophy
-SBRAIN is intentionally being developed incrementally.
-Each version introduces new functionality while attempting to improve the architecture of the previous version. The project focuses on learning and applying:
+## Development Philosophy
 
-* Python
-* Object-oriented programming
-* Modular architecture
-* File persistence
-* JSON
-* SQLite
-* API integration
-* AI integration
-* CLI development
-* Git and version control
-* Software engineering practices
+SBRAIN is intentionally developed incrementally, with each stage expanding both functionality and architecture.
 
----
+The project focuses on:
 
-# Roadmap
-
-## B1 — Core System
-* [x] Note creation
-* [x] Note listing
-* [x] Note searching
-* [x] Note updating
-* [x] Note deletion
-* [x] Tags
-* [x] Favorites
-* [x] Statistics
-* [x] Rich CLI interface
-* [x] Modular architecture
-
-## B2 — AI Integration
-* [x] AI configuration system
-* [x] Provider configuration
-* [x] Ollama integration
-* [X] OpenAI integration
-* [X] Anthropic integration
-* [X] Google Gemini integration
-* [X] AI note summaries
-* [X] AI-generated titles
-* [X] Flashcard generation
-* [X] Quiz generation
-
-## B3 — Knowledge & Documents
-* [ ] PDF import     <-- work in progress
-* [ ] PowerPoint import
-* [ ] Document text extraction
-* [ ] Automatic document-to-note conversion
-* [ ] Chunking
-* [ ] Embeddings
-* [ ] Local vector database
-* [ ] RAG-based knowledge retrieval
-
-## B4 — Study System
-* [ ] Flashcard system
-* [ ] Quiz system
-* [ ] Spaced repetition
-* [ ] Study sessions
-* [ ] Progress tracking
-
-## Future
-Possible future features include:
-
-* SQLite migration
-* Markdown rendering
-* Cloud synchronization
-* Encryption
-* Custom AI prompts
-* Self-hosted AI models
-* Fine-tuned models
-* Advanced knowledge retrieval
+- Python
+- Object-oriented programming
+- Modular architecture
+- JSON
+- SQLite
+- File persistence
+- API integration
+- AI integration
+- Document processing
+- OCR
+- CLI development
+- Git and version control
+- Software engineering
+- Knowledge retrieval
 
 ---
 
-# Project Status
+## Roadmap
 
-**Current version: B2 — AI Integration**
+### B1 — Core System
+- [x] Note creation
+- [x] Note listing
+- [x] Note searching
+- [x] Note updating
+- [x] Note deletion
+- [x] Tags
+- [x] Favorites
+- [x] Statistics
+- [x] Rich CLI interface
+- [x] Modular architecture
+
+### B2 — AI Integration
+- [x] AI configuration system
+- [x] Provider configuration
+- [x] Ollama integration
+- [x] OpenAI integration
+- [x] Anthropic integration
+- [x] Google Gemini integration
+- [x] AI note summaries
+- [x] AI-generated titles
+- [x] Flashcard generation
+- [x] Quiz generation
+- [x] AI chunk processing
+- [x] Structured AI responses
+
+### B3 — Knowledge & Documents
+- [x] PDF import
+- [x] PowerPoint import
+- [x] Document text extraction
+- [x] OCR
+- [x] Automatic document-to-note conversion
+- [x] Chunking
+- [ ] SQLite migration — work in progress
+- [ ] Embeddings
+- [ ] Local vector database
+- [ ] RAG-based knowledge retrieval
+
+### B4 — Study System
+- [ ] Flashcard system
+- [ ] Quiz system
+- [ ] Spaced repetition
+- [ ] Study sessions
+- [ ] Progress tracking
+
+### Future
+- [ ] Markdown rendering
+- [ ] Cloud synchronization
+- [ ] Encryption
+- [ ] Custom AI prompts
+- [ ] Self-hosted AI models
+- [ ] Fine-tuned models
+- [ ] Advanced knowledge retrieval
+- [ ] Semantic search
+- [ ] Vector-based knowledge retrieval
+
+---
+
+## Project Status
+
+**Current version:** B3 — Knowledge & Documents
+
+Document processing is now implemented, including PDF and PowerPoint importing, text extraction, OCR, chunking, and automatic document-to-note conversion.
+
+The current development focus is:
+
+- SQLite migration
+
+The planned knowledge pipeline is:
+
+```
+Documents
+    ↓
+Extraction / OCR
+    ↓
+Chunking
+    ↓
+AI Processing
+    ↓
+Automatic Notes
+    ↓
+SQLite
+    ↓
+Embeddings
+    ↓
+Vector Database
+    ↓
+RAG
+    ↓
+Advanced Knowledge Retrieval
+```
+
 SBRAIN is an active personal project and is continuously evolving.
 
-The primary goal is not only to build a useful application, but also to use the project as a practical environment for learning software engineering and developing a portfolio project from the ground up.
+The primary goal is to build a useful application while using the project as a practical environment for learning software engineering and developing a portfolio project from the ground up.
 
 ---
 
 ## License
+
 This project is currently developed as a personal open-source project.
+
 See the repository for the current licensing information.
